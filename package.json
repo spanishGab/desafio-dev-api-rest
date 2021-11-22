@@ -1,0 +1,31 @@
+{
+  "name": "desafio-dev-api-rest",
+  "version": "1.0.0",
+  "description": "An account management API.",
+  "main": "server.ts",
+  "scripts": {
+    "test": "npx jest --detectOpenHandles --silent",
+    "test:dev": "npx jest --watchAll --detectOpenHandles"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spanishGab/desafio-dev-api-rest.git"
+  },
+  "keywords": [
+    "account",
+    "management",
+    "api",
+    "restful"
+  ],
+  "author": "Gabriel Espanhol Santos",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/spanishGab/desafio-dev-api-rest/issues"
+  },
+  "homepage": "https://github.com/spanishGab/desafio-dev-api-rest#readme",
+  "devDependencies": {
+    "@types/node": "^16.11.9",
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  }
+}
