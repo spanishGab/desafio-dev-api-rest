@@ -1,9 +1,9 @@
 module.exports = {
 	singleQuote: true,
 	trailingComma: 'all',
-	useTabs: true,
-	tabWidth: 4,
-	printWidth: 120,
+	useTabs: false,
+	tabWidth: 2,
+	printWidth: 80,
 	overrides: [
 		{
 			files: '*.ts',

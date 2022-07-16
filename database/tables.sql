@@ -1,34 +1,35 @@
-CREATE TABLE management.people (
-	id_person INT NOT NULL GENERATED ALWAYS AS IDENTITY,
-	name VARCHAR(300),
-	cpf VARCHAR(11),
-	birth_date DATE,
-	
-	PRIMARY KEY (id_person)
+CREATE TYPE ACCOUNT_TYPE AS ENUM ('corrente', 'poupanca', 'salario', 'conjunta')
+
+CREATE TABLE payments.person (
+	id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
+	name VARCHAR(300) NOT NULL,
+	document_number VARCHAR(11) NOT NULL,
+	birth_date DATE NOT NULL,
+
+	PRIMARY KEY (id)
 )
 
-CREATE TABLE management.accounts (
-	id_account INT NOT NULL GENERATED ALWAYS AS IDENTITY,
-	id_person INT NOT NULL,
-	balance MONEY,
+CREATE TABLE payments.account (
+	id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
+	person_id BIGINT NOT NULL,
+	balance MONEY NOT NULL,
 	daily_withdrawal_limit MONEY,
-	status BOOLEAN,
-	type SMALLINT,
-	created_at TIMESTAMP,
+	is_active BOOLEAN NOT NULL,
+	type ACCOUNT_TYPE NOT NULL,
+	creation_date TIMESTAMP NOT NULL,
 	
-	PRIMARY KEY(id_account),
-	FOREIGN KEY (id_person)
-		REFERENCES management.people(id_person)
+	PRIMARY KEY(id),
+	FOREIGN KEY (person_id)
+		REFERENCES payments.person(id)
 )
 
-CREATE TABLE management.transactions (
-	id_transaction INT NOT NULL GENERATED ALWAYS AS IDENTITY, --(COULD BE A BIGINT IF THIS WAS A REAL WORLD APPLICATION) 
-	id_account INT NOT NULL,
-	amount MONEY,
-	transaction_date DATE,
-	
-	PRIMARY KEY (id_transaction),
-	FOREIGN KEY (id_account)
-		REFERENCES management.accounts(id_account)
-	
+CREATE TABLE payments.transaction (
+	id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
+	account_id BIGINT NOT NULL,
+	amount MONEY NOT NULL,
+	creation_date DATE NOT NULL,
+
+	PRIMARY KEY (id),
+	FOREIGN KEY (account_id)
+		REFERENCES payments.accounts(id)
 )

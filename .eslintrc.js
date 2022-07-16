@@ -31,6 +31,7 @@ module.exports = {
 	},
 	plugins: ['@typescript-eslint', 'prettier', 'import'],
 	rules: {
+		'prettier/prettier': 'error',
 		'import/extensions': ['error', 'ignorePackages', { js: 'never', ts: 'never' }],
 		'@typescript-eslint/no-explicit-any': 'off',
 		'@typescript-eslint/explicit-module-boundary-types': ['error', { allowArgumentsExplicitlyTypedAsAny: true }],
