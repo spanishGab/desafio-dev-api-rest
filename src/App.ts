@@ -1,14 +1,18 @@
 import cors from 'cors';
-import express, {Request, Response, NextFunction} from "express";
+
+export interface ISuccessResponse {
+  uuid: string;
+  message: string;
+}
 
 class App {
-    app: express.Application;
+  app: express.Application;
 
-    constructor () {
-        this.app = express();
-    }
+  constructor() {
+    this.app = express();
+  }
 
-    private middleware(): void {
-        this.app.use(cors());
-    }
+  private middleware(): void {
+    this.app.use(cors());
+  }
 }

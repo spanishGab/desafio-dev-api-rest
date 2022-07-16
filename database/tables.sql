@@ -1,6 +1,6 @@
 CREATE TYPE ACCOUNT_TYPE AS ENUM ('corrente', 'poupanca', 'salario', 'conjunta')
 
-CREATE TABLE payments.person (
+CREATE TABLE management.person (
 	id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
 	name VARCHAR(300) NOT NULL,
 	document_number VARCHAR(11) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE payments.person (
 	PRIMARY KEY (id)
 )
 
-CREATE TABLE payments.account (
+CREATE TABLE management.account (
 	id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
 	person_id BIGINT NOT NULL,
 	balance MONEY NOT NULL,
@@ -20,10 +20,10 @@ CREATE TABLE payments.account (
 	
 	PRIMARY KEY(id),
 	FOREIGN KEY (person_id)
-		REFERENCES payments.person(id)
+		REFERENCES management.person(id)
 )
 
-CREATE TABLE payments.transaction (
+CREATE TABLE management.transaction (
 	id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
 	account_id BIGINT NOT NULL,
 	amount MONEY NOT NULL,
@@ -31,5 +31,5 @@ CREATE TABLE payments.transaction (
 
 	PRIMARY KEY (id),
 	FOREIGN KEY (account_id)
-		REFERENCES payments.accounts(id)
+		REFERENCES management.accounts(id)
 )
