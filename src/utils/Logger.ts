@@ -1,4 +1,5 @@
 import * as winston from 'winston';
+import props from '../common/props';
 
 interface ILogTrace {
   timestamp: string;
@@ -39,7 +40,7 @@ class Logger {
     const trace: ILogTrace = {
       timestamp,
       servicename: props.SERVICE_NAME,
-      requestId: RequestContextManager.getRequestId(),
+      requestId: 'NOT_DEFINED',
       message: message,
     };
 

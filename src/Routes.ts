@@ -1,9 +1,5 @@
-import fastify, {
-  FastifyInstance,
-  RequestGenericInterface,
-  RouteShorthandOptions,
-} from 'fastify';
-import { ReplyGenericInterface } from 'fastify/types/reply';
+import fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify';
+import { ISuccessResponse } from './App';
 
 export const APPLICATION_PATH = {
   INTERNAL: {
@@ -24,9 +20,15 @@ export interface IBalanceQueryString {
 }
 
 class Routes {
-  private router: FastifyInstance = fastify();
+  private router: FastifyInstance;
 
-  public defineInternalRoutes() {}
+  constructor() {
+    this.router = fastify({ logger: true });
+  }
+
+  public defineInternalRoutes() {
+    this.healthcheck();
+  }
 
   private healthcheck() {
     this.router.route({
@@ -37,15 +39,21 @@ class Routes {
           200: {
             type: 'object',
             properties: {
-              uuid: { type: 'string' }, 
-              message: { type: 'string' }
-            }
-          }
-        }
+              uuid: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+        },
       },
-      handler: async (request: RequestGenericInterface, reply: ReplyGenericInterface) => {
-        
-      }
-    })
+      handler: async (request, reply) => {
+        request.log.info({ mesage: 'SYSTEM IS HEALTHY' });
+        reply.code(200).send(<ISuccessResponse>{
+          uuid: request.id,
+          message: 'SYSTEM IS HEALTHY',
+        });
+      },
+    });
   }
 }
+
+export default new Routes();

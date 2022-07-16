@@ -1,4 +1,6 @@
-import cors from 'cors';
+import fastify, { FastifyInstance } from 'fastify';
+import cors from '@fastify/cors';
+import routes from './Routes';
 
 export interface ISuccessResponse {
   uuid: string;
@@ -6,13 +8,27 @@ export interface ISuccessResponse {
 }
 
 class App {
-  app: express.Application;
+  private app: FastifyInstance;
 
   constructor() {
-    this.app = express();
+    this.app = fastify();
+
+    this.middleware();
+
+    this.routes();
+  }
+
+  public getApp(): FastifyInstance {
+     return this.app;
   }
 
   private middleware(): void {
-    this.app.use(cors());
+    this.app.register(cors);
+  }
+
+  private routes() {
+    this.app.register(routes.defineInternalRoutes);
   }
 }
+
+export default new App();
