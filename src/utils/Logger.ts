@@ -1,11 +1,12 @@
 import * as winston from 'winston';
 import props from '../common/props';
+import RequestContextManager from '../middlewares/RequestContextManager';
 
 interface ILogTrace {
   timestamp: string;
   servicename: string;
   requestId: string;
-  message: string;
+  message: { event: string; details: string; error?: any };
 }
 
 class Logger {
@@ -33,24 +34,36 @@ class Logger {
   private static getLogStatement(
     info: winston.Logform.TransformableInfo,
   ): string {
-    const { message, level, timestamp, event } = info;
+    const { message, level, timestamp } = info;
 
     const severityLevel = String(level).toLocaleUpperCase();
 
     const trace: ILogTrace = {
+      message,
       timestamp,
       servicename: props.SERVICE_NAME,
-      requestId: 'NOT_DEFINED',
-      message: message,
+      requestId: String(RequestContextManager.getRequestId() || 'NOT_PROVIDED'),
     };
 
-    return `[${severityLevel}]:[${trace.requestId}][${event}] ${JSON.stringify(
-      trace,
-    )}`;
+    return `[${severityLevel}]:[${trace.requestId}][${
+      trace.message.event
+    }] ${JSON.stringify({
+      timestamp,
+      serviceName: trace.servicename,
+      details: message.details,
+      error: message.error,
+    })}`;
   }
 
   public info(moduleName: string, methodName: string, details: string | any) {
     this.logger.info({
+      event: `${moduleName}.${methodName}`,
+      details,
+    });
+  }
+
+  public warn(moduleName: string, methodName: string, details: string | any) {
+    this.logger.warn({
       event: `${moduleName}.${methodName}`,
       details,
     });
