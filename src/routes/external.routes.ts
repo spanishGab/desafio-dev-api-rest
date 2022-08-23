@@ -1,12 +1,12 @@
 import { Request, Response, Router } from 'express';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 
-import { ISuccessResponseBody } from '.';
+import { ISuccessResponseBody } from '../interfaces/response';
 import logger from '../utils/Logger';
 
 const router = Router();
 
-router.get(`/healthcheck`, (req: Request, res: Response): Response => {
+router.get('/healthcheck', (req: Request, res: Response<ISuccessResponseBody>): Response => {
   logger.info('routes', 'healthcheck', {
     message: 'System is Healthy',
   });
@@ -14,19 +14,20 @@ router.get(`/healthcheck`, (req: Request, res: Response): Response => {
   return res.status(StatusCodes.OK).json({
     uuid: req.id,
     message: ReasonPhrases.OK,
-  } as ISuccessResponseBody);
+  });
 });
 
-router.post(`/`);
+router.post('/');
 
-router.post(`/deposit`);
+router.post('/deposit');
 
-router.get(`/balance`);
+router.get('/balance');
 
-router.post(`/withdrawal`);
+router.post('/withdrawal');
 
-router.put(`/block-account`);
+router.put('/block-account');
 
-router.get(`/receipt`);
+router.get('/receipt');
+
 
 export default router;

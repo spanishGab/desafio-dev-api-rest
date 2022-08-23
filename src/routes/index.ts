@@ -1,15 +1,10 @@
 import { Router } from "express";
 import props from "../common/props";
 
-import internalRoutes from "./internal.routes";
-
-export interface ISuccessResponseBody {
-  uuid: string;
-  message: string;
-}
+import externalRoutes from "./external.routes";
 
 const router = Router();
 
-router.use(props.VERSION, internalRoutes);
+router.use(`/${props.VERSION}`, externalRoutes);
 
 export default router;

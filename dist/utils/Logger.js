@@ -28,7 +28,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const winston = __importStar(require("winston"));
 const props_1 = __importDefault(require("../common/props"));
-const RequestContextManager_1 = __importDefault(require("../middlewares/RequestContextManager"));
+const RequestContextManager_1 = require("../middlewares/RequestContextManager");
 class Logger {
     constructor() {
         const formatOptions = this.defineFormatOptions();
@@ -48,7 +48,7 @@ class Logger {
             message,
             timestamp,
             servicename: props_1.default.SERVICE_NAME,
-            requestId: String(RequestContextManager_1.default.getRequestId() || 'NOT_PROVIDED'),
+            requestId: RequestContextManager_1.REQUEST_ID || 'NOT_PROVIDED',
         };
         return `[${severityLevel}]:[${trace.requestId}][${trace.message.event}] ${JSON.stringify({
             timestamp,

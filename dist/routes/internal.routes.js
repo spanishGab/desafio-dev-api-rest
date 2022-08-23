@@ -11,7 +11,7 @@ router.get(`/healthcheck`, (req, res) => {
     Logger_1.default.info('routes', 'healthcheck', {
         message: 'System is Healthy',
     });
-    return res.status(http_status_codes_1.StatusCodes.OK).send({
+    return res.status(http_status_codes_1.StatusCodes.OK).json({
         uuid: req.id,
         message: http_status_codes_1.ReasonPhrases.OK,
     });

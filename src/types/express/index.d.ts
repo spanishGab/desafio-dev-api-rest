@@ -1,5 +1,9 @@
-declare namespace Express {
-  export interface Request {
-     id: string
+export {}
+
+declare global {
+  namespace Express {
+    export interface Request {
+      id: string;
+    }
   }
 }
