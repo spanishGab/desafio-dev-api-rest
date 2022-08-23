@@ -1,18 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
+import { RequestError } from '../errors/requestErrors';
+import { IErrorResponseBody } from '../interfaces/response';
 import logger from '../utils/Logger';
-
-export interface IErrorDetails {
-  attribute: string;
-  messages: string[];
-}
-
-export interface IErrorResponseBody {
-  id: string;
-  code: string;
-  description: string;
-  errorDetails?: IErrorDetails[];
-}
 
 export function handleError(
   err: Error,
@@ -21,6 +11,14 @@ export function handleError(
   next: NextFunction,
 ) {
   logger.info('errorHandler', 'handleError', err.message);
+
+  if (err instanceof RequestError) {
+    const errorResponse = err.toJSON();
+    
+    logger.error('errorHandler', 'handleError', errorResponse);
+
+    return res.status(err.httpStatusCode).json(errorResponse as IErrorResponseBody);
+  }
 
   if (err instanceof SyntaxError) {
     return res.status(StatusCodes.BAD_REQUEST).json({

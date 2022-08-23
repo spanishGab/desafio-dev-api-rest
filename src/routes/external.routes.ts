@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
+import { AccountController } from '../controllers/account';
 
 import { ISuccessResponseBody } from '../interfaces/response';
 import logger from '../utils/Logger';
@@ -17,7 +18,7 @@ router.get('/healthcheck', (req: Request, res: Response<ISuccessResponseBody>): 
   });
 });
 
-router.post('/');
+router.post('/', AccountController.createAccount);
 
 router.post('/deposit');
 
