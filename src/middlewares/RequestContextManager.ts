@@ -1,16 +1,33 @@
+import cls from 'cls-hooked';
 import { Response, NextFunction, Request } from 'express';
 import { v4 as uuidV4 } from 'uuid';
 
-export const REQUEST_ID = uuidV4();
+const NAMESPACE: cls.Namespace = cls.createNamespace(uuidV4());
 
-export class RequestContextManager {
+class RequestContextManager {
   public static createContext(
     req: Request,
     res: Response,
     next: NextFunction,
-  ): void {
-    req.id = REQUEST_ID;
-    
-    next();    
+  ): boolean {
+    NAMESPACE.bindEmitter(req);
+    NAMESPACE.bindEmitter(res);
+
+    const requestId: string = uuidV4();
+
+    req.id = requestId;
+
+    NAMESPACE.run(() => {
+      NAMESPACE.set('requestId', requestId);
+      next();
+    });
+
+    return true;
+  }
+
+  public static getRequestId(): string {
+    return NAMESPACE.get('requestId');
   }
 }
+
+export default RequestContextManager;

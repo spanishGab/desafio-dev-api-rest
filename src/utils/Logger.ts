@@ -1,6 +1,6 @@
 import * as winston from 'winston';
 import props from '../common/props';
-import { REQUEST_ID } from '../middlewares/RequestContextManager';
+import requestContextManager from '../middlewares/RequestContextManager';
 
 interface ILogTrace {
   timestamp: string;
@@ -42,7 +42,7 @@ class Logger {
       message,
       timestamp,
       servicename: props.SERVICE_NAME,
-      requestId: REQUEST_ID || 'NOT_PROVIDED',
+      requestId: requestContextManager.getRequestId() || 'NOT_PROVIDED',
     };
 
     return `[${severityLevel}]:[${trace.requestId}][${

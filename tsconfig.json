@@ -15,11 +15,11 @@
       "node",
     ],
     "typeRoots": [
-      "./src/types"
+      "./src/types",
     ],
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
   ],
   "exclude": [
     "node_modules",

@@ -1,7 +1,14 @@
+/** @type {import('ts-jest').InitialOptionsTsJest} */
 module.exports = {
   preset: 'ts-jest',
   testMatch: [
-    '**/__tests__/**/*.+(ts|js)?(x)',
+    '**/src/**/*.+(ts|js)?(x)',
   ],
-  rootDir: './__tests__'
+  rootDir: './src',
+  globals: {
+    'ts-jest': {
+        tsconfig: './tsconfig.json',
+        isolatedModules: true
+    }
+  }
 };

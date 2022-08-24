@@ -2,13 +2,13 @@ import express, { Application } from 'express';
 import 'express-async-errors';
 import cors from 'cors';
 
-import { RequestContextManager } from './middlewares/RequestContextManager';
+import requestContextManager from './middlewares/RequestContextManager';
 import routes from './routes';
 import { handleError } from './middlewares/errorHanlder';
 
 const app: Application = express();
 
-app.all('*', RequestContextManager.createContext);
+app.all('*', requestContextManager.createContext);
 
 app.use(cors());
 

@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { ISuccessResponseBody } from '../interfaces/response';
-import { REQUEST_ID } from '../middlewares/RequestContextManager';
+import RequestContextManager from '../middlewares/RequestContextManager';
 import { accountCreationSchema } from '../schemas/account';
 import logger from '../utils/Logger';
 import { Validator } from '../validators/validator';
 
 export interface IAccountRequestBody {
-  name: string;
   documentNumber: string;
-  birthDate: string;
+  type: 'corrente' | 'poupanca' | 'salario' | 'conjunta';
+  dailyWithdrawalLimit: number;
 }
 
 export class AccountController {
@@ -23,6 +23,9 @@ export class AccountController {
 
     return res
       .status(StatusCodes.CREATED)
-      .json({ uuid: REQUEST_ID, message: 'Account Created!' } as ISuccessResponseBody);
+      .json({
+        uuid: RequestContextManager.getRequestId(),
+        message: 'Created Account!',
+      } as ISuccessResponseBody);
   }
 }

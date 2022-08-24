@@ -1,6 +1,6 @@
 version: '3'
 services:
-  payments-api:
-    container_name: payments-api
-    image: spanishGab/payments-api
+  account-management-api:
+    container_name: account-management-api
+    image: spanishGab/account-management-api
     restart: always

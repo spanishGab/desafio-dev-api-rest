@@ -1,9 +1,9 @@
 import { StatusCodes } from "http-status-codes";
 import { IErrorDetails, IErrorResponseBody } from "../interfaces/response";
-import { REQUEST_ID } from "../middlewares/RequestContextManager";
+import requestContextManager from "../middlewares/RequestContextManager";
 
 export class RequestError extends Error {
-  public readonly id: string = REQUEST_ID;
+  public readonly id: string = requestContextManager.getRequestId();
   public readonly code: string = String(StatusCodes.BAD_REQUEST);
   public readonly description: string;
   public readonly errorDetails: IErrorDetails[];
