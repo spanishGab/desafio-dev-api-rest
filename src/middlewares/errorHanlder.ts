@@ -10,23 +10,34 @@ export function handleError(
   res: Response<IErrorResponseBody>,
   next: NextFunction,
 ) {
-  logger.info('errorHandler', 'handleError', err.message);
-
   if (err instanceof RequestError) {
-    const errorResponse = err.toJSON();
-    
-    logger.error('errorHandler', 'handleError', errorResponse);
+    logger.error({
+      event: 'errorHandler.handleError.RequestError',
+      details: { error: err },
+    });
 
-    return res.status(err.httpStatusCode).json(errorResponse as IErrorResponseBody);
+    return res
+      .status(err.httpStatusCode)
+      .json(err.toJSON() as IErrorResponseBody);
   }
 
   if (err instanceof SyntaxError) {
+    logger.error({
+      event: 'errorHandler.handleError.SyntaxError',
+      details: { error: err.message },
+    });
+
     return res.status(StatusCodes.BAD_REQUEST).json({
       id: req.id,
       code: String(StatusCodes.BAD_REQUEST),
       description: err.message,
     });
   }
+
+  logger.error({
+    event: 'errorHandler.handleError.UnmappedError',
+    details: { message: err.message },
+  });
 
   return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
     id: req.id,

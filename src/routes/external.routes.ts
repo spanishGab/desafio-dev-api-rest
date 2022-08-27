@@ -7,16 +7,20 @@ import logger from '../utils/Logger';
 
 const router = Router();
 
-router.get('/healthcheck', (req: Request, res: Response<ISuccessResponseBody>): Response => {
-  logger.info('routes', 'healthcheck', {
-    message: 'System is Healthy',
-  });
+router.get(
+  '/healthcheck',
+  (req: Request, res: Response<ISuccessResponseBody>): Response => {
+    logger.info({
+      event: 'routes.healthCheck',
+      details: { message: 'System is Healthy' },
+    });
 
-  return res.status(StatusCodes.OK).json({
-    uuid: req.id,
-    message: ReasonPhrases.OK,
-  });
-});
+    return res.status(StatusCodes.OK).json({
+      uuid: req.id,
+      message: ReasonPhrases.OK,
+    });
+  },
+);
 
 router.post('/', AccountController.createAccount);
 
@@ -31,6 +35,5 @@ router.post('/withdrawal');
 router.put('/block-account');
 
 router.get('/receipt');
-
 
 export default router;

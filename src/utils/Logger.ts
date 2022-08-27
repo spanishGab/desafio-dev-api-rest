@@ -2,11 +2,16 @@ import * as winston from 'winston';
 import props from '../common/props';
 import requestContextManager from '../middlewares/RequestContextManager';
 
+interface InfoElements {
+  event: string;
+  details: any;
+}
+
 interface ILogTrace {
   timestamp: string;
   servicename: string;
   requestId: string;
-  message: { event: string; details: string; error?: any };
+  message: InfoElements;
 }
 
 class Logger {
@@ -55,31 +60,16 @@ class Logger {
     })}`;
   }
 
-  public info(moduleName: string, methodName: string, details: string | any) {
-    this.logger.info({
-      event: `${moduleName}.${methodName}`,
-      details,
-    });
+  public info(elements: InfoElements) {
+    this.logger.info(elements);
   }
 
-  public warn(moduleName: string, methodName: string, details: string | any) {
-    this.logger.warn({
-      event: `${moduleName}.${methodName}`,
-      details,
-    });
+  public warn(elements: InfoElements) {
+    this.logger.warn(elements);
   }
 
-  public error(
-    moduleName: string,
-    methodName: string,
-    details: string | any,
-    error?: any,
-  ) {
-    this.logger.error({
-      event: `${moduleName}.${methodName}`,
-      details,
-      error,
-    });
+  public error(elements: InfoElements) {
+    this.logger.error(elements);
   }
 }
 

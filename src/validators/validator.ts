@@ -15,7 +15,10 @@ export class Validator {
     } catch (validationError) {
       const error: Joi.ValidationError = validationError as Joi.ValidationError;
 
-      logger.error(Validator.name, 'validateFieldsBySchema', error.details);
+      logger.error({
+        event: 'Validator.validateFieldsBySchema',
+        details: { errorDetails: error.details },
+      });
 
       let errorDetails: IErrorDetails[] = [];
 

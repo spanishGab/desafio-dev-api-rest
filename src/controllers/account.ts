@@ -14,8 +14,9 @@ export interface IAccountRequestBody {
 
 export class AccountController {
   static async createAccount(req: Request, res: Response): Promise<Response> {
-    logger.info(AccountController.name, 'createAccount.init', {
-      inputData: req.body,
+    logger.info({
+      event: 'AccountController.createAccount.init',
+      details: { inputData: req.body },
     });
 
     const inputData: IAccountRequestBody =
@@ -23,7 +24,7 @@ export class AccountController {
 
     return res
       .status(StatusCodes.CREATED)
-      .header({Location: `/account/${/* AN ACCOUNT ID GOES HERE */1}`})
+      .header({ Location: `/account/${/* AN ACCOUNT ID GOES HERE */ 1}` })
       .json({
         uuid: RequestContextManager.getRequestId(),
         message: 'Created Account!',
