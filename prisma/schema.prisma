@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Person {
+    id             Int @id @default(autoincrement())
+    name           String
+    documentNumber String @unique @map("document_number")
+    birthDate      String @map("birth_date")
+    accounts       Account[]
+}
+
+model Account {
+    id                   Int @id @default(autoincrement())
+    personId             Int @map("person_id")
+    balance              Decimal @default(0)
+    dailyWithdrawalLimit Decimal @default(500) @map("daily_withdrawal_limit")
+    isActive             Boolean @default(false) @map("is_active")
+    type                 String @default("corrente")
+    createdAt            DateTime @default(now()) @map("created_at")
+    updatedAt            DateTime @default(now()) @map("updated_at")
+
+    person               Person @relation(fields: [personId], references: [id])
+    operations           Operation[]
+
+}
+
+model Operation {
+    id Int @id @default(autoincrement())
+    accountId Int @map("account_id")
+    amount Decimal
+    createdAt            DateTime @default(now()) @map("created_at")
+    updatedAt            DateTime @default(now()) @map("updated_at")
+
+    account Account @relation(fields: [accountId], references: [id])
+}

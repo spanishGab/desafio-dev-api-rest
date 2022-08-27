@@ -20,6 +20,8 @@ router.get('/healthcheck', (req: Request, res: Response<ISuccessResponseBody>): 
 
 router.post('/', AccountController.createAccount);
 
+router.get('/account/:id');
+
 router.post('/deposit');
 
 router.get('/balance');

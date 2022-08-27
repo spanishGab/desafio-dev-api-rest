@@ -23,6 +23,7 @@ export class AccountController {
 
     return res
       .status(StatusCodes.CREATED)
+      .header({Location: `/account/${/* AN ACCOUNT ID GOES HERE */1}`})
       .json({
         uuid: RequestContextManager.getRequestId(),
         message: 'Created Account!',

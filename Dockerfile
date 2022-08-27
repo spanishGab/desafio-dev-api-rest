@@ -1,10 +1,10 @@
 FROM node:16
 
-RUN mkdir -p /payments-api
+RUN mkdir -p /accounts-api
 
-WORKDIR /payments-api
+WORKDIR /accounts-api
 
-COPY . /payments-api/
+COPY . /accounts-api/
 
 RUN npm install --save && npm run build
 
