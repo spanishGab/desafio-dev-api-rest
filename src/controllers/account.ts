@@ -3,12 +3,13 @@ import { StatusCodes } from 'http-status-codes';
 import { ISuccessResponseBody } from '../interfaces/response';
 import RequestContextManager from '../middlewares/RequestContextManager';
 import { accountCreationSchema } from '../schemas/account';
+import { AccountType } from '../services/account';
 import logger from '../utils/Logger';
 import { Validator } from '../validators/validator';
 
 export interface IAccountRequestBody {
   documentNumber: string;
-  type: 'corrente' | 'poupanca' | 'salario' | 'conjunta';
+  type: AccountType;
   dailyWithdrawalLimit: number;
 }
 

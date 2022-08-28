@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { AccountType } from '../services/account';
 import {
   INVALID_DAILY_WITHDRAWAL_LIMIT,
   INVALID_DOCUMENT_NUMBER,
@@ -14,7 +15,12 @@ export const accountCreationSchema = Joi.object({
     .messages({ '*': INVALID_DOCUMENT_NUMBER }),
   type: Joi.string()
     .required()
-    .allow('corrente', 'poupanca', 'salario', 'conjunta')
+    .allow(
+      AccountType.corrente,
+      AccountType.poupanca,
+      AccountType.salario,
+      AccountType.conjunta,
+    )
     .messages({ '*': INVALID_ACCOUNT_TYPE }),
   dailyWithdrawalLimit: Joi.number()
     .required()
