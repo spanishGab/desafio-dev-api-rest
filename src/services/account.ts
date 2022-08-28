@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime';
+import { PrismaClient, Prisma, Account } from '@prisma/client';
 
 export enum AccountType {
   corrente = 'corrente',
@@ -8,39 +7,19 @@ export enum AccountType {
   conjunta = 'conjunta',
 }
 
-export interface IAccount {
-  id: number;
-  personId: number;
-  balance: Decimal;
-  dailyWithdrawalLimit: Decimal;
-  isActive: boolean;
-  type: AccountType;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 class AccountService {
   private dbClient = new PrismaClient();
 
   public async createNew(
-    account: Omit<IAccount, 'id' | 'createdAt' | 'updatedAt'>,
-  ): Promise<IAccount> {
-    // Revisar implementação
-    const a = await this.dbClient.account.create(
+    account: Omit<Account, 'id' | 'createdAt' | 'updatedAt'>,
+    select: Record<keyof Account, boolean>,
+  ): Promise<Account> {
+    const createdAccount: Account = await this.dbClient.account.create(
       {
         data: account,
-        select: {
-          id: true,
-          personId: true,
-          balance: true,
-          dailyWithdrawalLimit: true,
-          isActive: true,
-          type: true,
-          createdAt: true,
-          updatedAt: true,
-        }
+        select,
       });
 
-    return a as IAccount;
+    return createdAccount;
   }
 }
