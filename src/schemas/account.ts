@@ -4,6 +4,7 @@ import {
   INVALID_DAILY_WITHDRAWAL_LIMIT,
   INVALID_DOCUMENT_NUMBER,
   INVALID_ACCOUNT_TYPE,
+  INVALID_BALANCE,
 } from './errorMessages';
 
 export const dateField = Joi.string().isoDate();
@@ -22,6 +23,10 @@ export const accountCreationSchema = Joi.object({
       AccountType.conjunta,
     )
     .messages({ '*': INVALID_ACCOUNT_TYPE }),
+  balance: Joi.number()
+    .required()
+    .positive()
+    .messages({ '*': INVALID_BALANCE }),
   dailyWithdrawalLimit: Joi.number()
     .required()
     .positive()
