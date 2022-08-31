@@ -3,7 +3,12 @@ import { StatusCodes } from 'http-status-codes';
 import { ISuccessResponseBody } from '../interfaces/response';
 import RequestContextManager from '../middlewares/RequestContextManager';
 import { accountCreationSchema } from '../schemas/account';
-import { AccountService, AccountType } from '../services/account';
+import {
+  AccountService,
+  AccountType,
+  IAccount,
+  NewAccount,
+} from '../services/account';
 import logger from '../utils/Logger';
 import { Validator } from '../validators/validator';
 
@@ -26,9 +31,21 @@ export class AccountController {
 
     const accountService = new AccountService();
 
+    const accountData: NewAccount = {
+      balance: inputData.balance,
+      dailyWithdrawalLimit: inputData.dailyWithdrawalLimit,
+      type: inputData.type,
+      isActive: true,
+    };
+
+    const createdAccount = await accountService.createNew(
+      accountData,
+      inputData.documentNumber,
+    );
+
     return res
       .status(StatusCodes.CREATED)
-      .header({ Location: `/account/${/* AN ACCOUNT ID GOES HERE */ 1}` })
+      .header({ Location: `/account/${createdAccount.id}` })
       .json({
         uuid: RequestContextManager.getRequestId(),
         message: 'Created Account!',

@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import { RequestError } from '../errors/requestErrors';
-import { IErrorDetails } from '../interfaces/response';
+import { IErrorDetails } from '../interfaces/customError';
 import logger from '../utils/Logger';
 
 export class Validator {

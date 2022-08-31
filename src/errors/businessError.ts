@@ -1,10 +1,9 @@
 import { StatusCodes } from 'http-status-codes';
-import requestContextManager from '../middlewares/RequestContextManager';
 import { BaseInternalError } from './internalErrors';
 
-const BUSINESS_ERROR_CODE = 'account-management-error-';
+const BUSINESS_ERROR_CODE = 'account-management-error::';
 
-class BusinessError extends BaseInternalError {
+export class BusinessError extends BaseInternalError {
   public readonly code: string = BUSINESS_ERROR_CODE.concat('unmapped');
   public readonly httpStatusCode: number;
 

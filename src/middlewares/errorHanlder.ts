@@ -1,24 +1,42 @@
 import { Request, Response, NextFunction } from 'express';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
+import { BusinessError } from '../errors/businessError';
+import { BaseInternalError } from '../errors/internalErrors';
 import { RequestError } from '../errors/requestErrors';
-import { IErrorResponseBody } from '../interfaces/response';
+import { ICustomError } from '../interfaces/customError';
 import logger from '../utils/Logger';
 
 export function handleError(
   err: Error,
   req: Request,
-  res: Response<IErrorResponseBody>,
+  res: Response<ICustomError>,
   next: NextFunction,
 ) {
+  if (err instanceof BusinessError) {
+    logger.error({
+      event: 'errorHandler.handleError.BusinessError',
+      details: { error: err },
+    });
+
+    return res.status(err.httpStatusCode).json(err.toJSON());
+  }
+
+  if (err instanceof BaseInternalError) {
+    logger.error({
+      event: 'errorHandler.handleError.InternalError',
+      details: { error: err },
+    });
+
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err.toJSON());
+  }
+
   if (err instanceof RequestError) {
     logger.error({
       event: 'errorHandler.handleError.RequestError',
       details: { error: err },
     });
 
-    return res
-      .status(err.httpStatusCode)
-      .json(err.toJSON() as IErrorResponseBody);
+    return res.status(StatusCodes.BAD_REQUEST).json(err.toJSON());
   }
 
   if (err instanceof SyntaxError) {

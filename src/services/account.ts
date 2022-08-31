@@ -1,5 +1,8 @@
-import { PrismaClient, Prisma, Account, Person } from '@prisma/client';
+import { PrismaClient, Prisma, Account } from '@prisma/client';
+
+import { DateTime } from 'luxon';
 import { AccountCreationError } from '../errors/businessError';
+import dbClient from '../db';
 import logger from '../utils/Logger';
 
 export enum AccountType {
@@ -9,29 +12,40 @@ export enum AccountType {
   conjunta = 'conjunta',
 }
 
-export class AccountService {
-  private dbClient = new PrismaClient();
+export interface IAccount {
+  id: number;
+  personId: number;
+  balance: number;
+  dailyWithdrawalLimit: number;
+  isActive: boolean;
+  type: AccountType;
+  createdAt: DateTime;
+  updatedAt: DateTime;
+}
 
+export type NewAccount = Omit<IAccount, 'id' | 'personId' | 'createdAt' | 'updatedAt'>;
+
+export class AccountService {
   public async createNew(
-    accountInfo: Omit<Account, 'id' | 'personId' | 'createdAt' | 'updatedAt'>,
+    accountData: NewAccount,
     ownerDocumentNumber: string,
-  ): Promise<Account> {
+  ): Promise<IAccount> {
     logger.info({
       event: 'AccountService.createNew.init',
-      details: { accountData: accountInfo, ownerDocumentNumber },
+      details: { accountData: accountData, ownerDocumentNumber },
     });
 
     try {
       const { id: accountOwnerId } =
-        await this.dbClient.person.findUniqueOrThrow({
+        await dbClient.person.findUniqueOrThrow({
           where: { documentNumber: ownerDocumentNumber },
           select: {
             id: true,
           },
         });
 
-      const createdAccount = await this.dbClient.account.create({
-        data: { personId: accountOwnerId, ...accountInfo },
+      const createdAccount: Account = await dbClient.account.create({
+        data: { personId: accountOwnerId, ...accountData },
         select: {
           id: true,
           personId: true,
@@ -44,7 +58,7 @@ export class AccountService {
         },
       });
 
-      return createdAccount;
+      return this.parseAccountRecord(createdAccount);
     } catch (error) {
       if (error instanceof Prisma.NotFoundError) {
         logger.error({
@@ -67,6 +81,16 @@ export class AccountService {
 
       throw AccountCreationError;
     }
+  }
 
+  private parseAccountRecord(accountRecord: Account): IAccount {
+    return {
+      ...accountRecord,
+      balance: Number(accountRecord.balance),
+      dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
+      type: accountRecord.type as AccountType,
+      createdAt: DateTime.fromJSDate(accountRecord.createdAt),
+      updatedAt: DateTime.fromJSDate(accountRecord.updatedAt),
+    };
   }
 }
