@@ -2,7 +2,7 @@
 module.exports = {
   preset: 'ts-jest',
   testMatch: [
-    '**/src/**/*.+(ts|js)?(x)',
+    '**/src/**/*.+(test.ts)?(x)',
   ],
   rootDir: './src',
   globals: {

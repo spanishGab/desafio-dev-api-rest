@@ -24,7 +24,9 @@ router.get(
 
 router.post('/', AccountController.createAccount);
 
-router.route('/account-owner').get().post();
+router.get('/account-owner/:id');
+
+router.post('/account-owner/');
 
 router.post('/deposit');
 

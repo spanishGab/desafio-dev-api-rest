@@ -4,3 +4,4 @@ dist/
 
 database/accounts.db
 database/accounts.db-journal
+.tool-versions

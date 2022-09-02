@@ -10,7 +10,7 @@ class AccountServer {
   static run(): Server {
     return app.listen(PORT, () => {
       logger.info({
-        event: 'Server.createServer',
+        event: 'AccountServer.run',
         details: `Server is up and running at port ${PORT}`,
       });
     });

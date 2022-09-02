@@ -24,7 +24,7 @@ describe('#AccountService.createNew.SuitTests', () => {
   };
 
   it('Should create a new account record successfully in the database', async () => {
-    prismaMock.person.findUniqueOrThrow.mockResolvedValue(personRecord);
+    prismaMock.owner.findUniqueOrThrow.mockResolvedValue(personRecord);
 
     prismaMock.account.create.mockResolvedValue(accountRecord);
 
@@ -55,7 +55,7 @@ describe('#AccountService.createNew.SuitTests', () => {
   test.each([
     {
       findPersonMock: () => {
-        throw new Error('Could not find a person');
+        throw new Error('Could not find a owner');
       },
       createAccountMock: undefined,
       expectedResult: AccountCreationError,
@@ -71,11 +71,11 @@ describe('#AccountService.createNew.SuitTests', () => {
     'AccountService.createNew() throwing errors',
     async ({ findPersonMock, createAccountMock, expectedResult }) => {
       if (findPersonMock) {
-        prismaMock.person.findUniqueOrThrow.mockImplementationOnce(
+        prismaMock.owner.findUniqueOrThrow.mockImplementationOnce(
           findPersonMock,
         );
       } else {
-        prismaMock.person.findUniqueOrThrow.mockResolvedValue(personRecord);
+        prismaMock.owner.findUniqueOrThrow.mockResolvedValue(personRecord);
       }
 
       if (createAccountMock) {

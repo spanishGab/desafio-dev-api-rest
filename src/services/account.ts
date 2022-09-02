@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, Account } from '@prisma/client';
+import { Prisma, Account } from '@prisma/client';
 
 import { DateTime } from 'luxon';
 import { AccountCreationError } from '../errors/businessError';
@@ -37,7 +37,7 @@ export class AccountService {
 
     try {
       const { id: accountOwnerId } =
-        await dbClient.person.findUniqueOrThrow({
+        await dbClient.owner.findUniqueOrThrow({
           where: { documentNumber: ownerDocumentNumber },
           select: {
             id: true,
@@ -58,7 +58,7 @@ export class AccountService {
         },
       });
 
-      return this.parseAccountRecord(createdAccount);
+      return this.fromDBRecord(createdAccount);
     } catch (error) {
       if (error instanceof Prisma.NotFoundError) {
         logger.error({
@@ -74,7 +74,6 @@ export class AccountService {
       logger.error({
         event: 'AccountService.createNew.error',
         details: {
-          message: 'An error occoured while trying to create the new account',
           error: error.message,
         },
       });
@@ -83,7 +82,7 @@ export class AccountService {
     }
   }
 
-  private parseAccountRecord(accountRecord: Account): IAccount {
+  private fromDBRecord(accountRecord: Account): IAccount {
     return {
       ...accountRecord,
       balance: Number(accountRecord.balance),

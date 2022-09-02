@@ -1,14 +1,10 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import props from '../common/props';
 import { ISuccessResponseBody } from '../interfaces/response';
 import RequestContextManager from '../middlewares/RequestContextManager';
 import { accountCreationSchema } from '../schemas/account';
-import {
-  AccountService,
-  AccountType,
-  IAccount,
-  NewAccount,
-} from '../services/account';
+import { AccountService, AccountType, NewAccount } from '../services/account';
 import logger from '../utils/Logger';
 import { Validator } from '../validators/validator';
 
@@ -20,7 +16,10 @@ export interface IAccountRequestBody {
 }
 
 export class AccountController {
-  static async createAccount(req: Request, res: Response): Promise<Response> {
+  static async createAccount(
+    req: Request,
+    res: Response<ISuccessResponseBody>,
+  ): Promise<Response> {
     logger.info({
       event: 'AccountController.createAccount.init',
       details: { inputData: req.body },
@@ -38,17 +37,17 @@ export class AccountController {
       isActive: true,
     };
 
-    const createdAccount = await accountService.createNew(
+    const { id } = await accountService.createNew(
       accountData,
       inputData.documentNumber,
     );
 
     return res
       .status(StatusCodes.CREATED)
-      .header({ Location: `/account/${createdAccount.id}` })
+      .header({ Location: `/${props.VERSION}/account/${id}` })
       .json({
         uuid: RequestContextManager.getRequestId(),
         message: 'Created Account!',
-      } as ISuccessResponseBody);
+      });
   }
 }

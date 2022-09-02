@@ -21,3 +21,9 @@ export const AccountCreationError = new BusinessError(
   StatusCodes.INTERNAL_SERVER_ERROR,
 );
 
+export const OwnerCreationError = new BusinessError(
+  'account-creation',
+  'Error while trying to create an account Owner',
+  StatusCodes.INTERNAL_SERVER_ERROR,
+);
+
