@@ -1,4 +1,4 @@
-CREATE TABLE person (
+CREATE TABLE owner (
 	id INTEGER NOT NULL,
 	name TEXT CHECK(LENGTH(name) <= 300) NOT NULL,
 	document_number TEXT CHECK(LENGTH(document_number) = 11) UNIQUE NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE account (
     updated_at STRING NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
 	PRIMARY KEY(id),
-	FOREIGN KEY (person_id) REFERENCES person(id)
+	FOREIGN KEY (person_id) REFERENCES owner(id)
 );
 
 CREATE TABLE operation (

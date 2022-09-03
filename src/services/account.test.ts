@@ -14,7 +14,7 @@ describe('#AccountService.createNew.SuitTests', () => {
 
   const accountRecord = {
     id: 1,
-    personId: 1,
+    ownerId: 1,
     balance: new Prisma.Decimal(500),
     dailyWithdrawalLimit: new Prisma.Decimal(500),
     isActive: true,
@@ -42,7 +42,7 @@ describe('#AccountService.createNew.SuitTests', () => {
       ),
     ).resolves.toEqual({
       id: 1,
-      personId: 1,
+      ownerId: 1,
       balance: 500,
       dailyWithdrawalLimit: 500,
       isActive: true,

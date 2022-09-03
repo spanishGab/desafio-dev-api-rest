@@ -1,13 +1,15 @@
+import { Prisma, PrismaClient } from "@prisma/client";
+
 export default interface IRepositoryAdapter<
   Table = any,
   SelectColumns = Record<keyof Table, boolean>,
-  InsertColumns = Record<keyof Table, boolean>,
   WhereFilter = Record<keyof Table, any>
 > {
-  dbClient: string;
+  client: PrismaClient;
 
-  create(data: Table, select?: SelectColumns, insert?: InsertColumns): Table;
-  read(where: WhereFilter, select?: SelectColumns, insert?: InsertColumns): Table;
-  update(where: WhereFilter, select?: SelectColumns, insert?: InsertColumns): Table;
-  delete(where: WhereFilter, select?: SelectColumns, insert?: InsertColumns): Table;
+  create(data: Table, select?: SelectColumns): Promise<Table>;
+  read(where: WhereFilter, select?: SelectColumns): Table;
+  update(where: WhereFilter, select?: SelectColumns): Table;
+  delete(where: WhereFilter, select?: SelectColumns): Table;
+  fromDBRecord(dbRecord: Table): any;
 }

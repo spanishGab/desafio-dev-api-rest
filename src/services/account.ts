@@ -14,7 +14,7 @@ export enum AccountType {
 
 export interface IAccount {
   id: number;
-  personId: number;
+  ownerId: number;
   balance: number;
   dailyWithdrawalLimit: number;
   isActive: boolean;
@@ -23,7 +23,7 @@ export interface IAccount {
   updatedAt: DateTime;
 }
 
-export type NewAccount = Omit<IAccount, 'id' | 'personId' | 'createdAt' | 'updatedAt'>;
+export type NewAccount = Omit<IAccount, 'id' | 'ownerId' | 'createdAt' | 'updatedAt'>;
 
 export class AccountService {
   public async createNew(
@@ -45,10 +45,10 @@ export class AccountService {
         });
 
       const createdAccount: Account = await dbClient.account.create({
-        data: { personId: accountOwnerId, ...accountData },
+        data: { ownerId: accountOwnerId, ...accountData },
         select: {
           id: true,
-          personId: true,
+          ownerId: true,
           balance: true,
           dailyWithdrawalLimit: true,
           isActive: true,
@@ -64,7 +64,7 @@ export class AccountService {
         logger.error({
           event: 'AccountService.createNew.ownerNotFound.error',
           details: {
-            message: 'Could not find a person for the given ownerDocumetNumber',
+            message: 'Could not find a owner for the given ownerDocumetNumber',
             error: error.message,
             ownerDocumentNumber,
           },

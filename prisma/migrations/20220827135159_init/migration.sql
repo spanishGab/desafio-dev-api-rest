@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "Person" (
+CREATE TABLE "Owner" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
     "document_number" TEXT NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE "Account" (
     "type" TEXT NOT NULL DEFAULT 'corrente',
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Account_person_id_fkey" FOREIGN KEY ("person_id") REFERENCES "Person" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "Account_person_id_fkey" FOREIGN KEY ("person_id") REFERENCES "Owner" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -30,4 +30,4 @@ CREATE TABLE "Operation" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Person_document_number_key" ON "Person"("document_number");
+CREATE UNIQUE INDEX "Person_document_number_key" ON "Owner"("document_number");
