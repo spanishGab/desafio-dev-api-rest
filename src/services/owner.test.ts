@@ -1,8 +1,5 @@
-import { DateTime } from 'luxon';
 import { prismaMock } from '../../prismaSingleton';
-import {
-  OwnerCreationError,
-} from '../errors/businessError';
+import { OwnerCreationError } from '../errors/businessError';
 import { OwnerService } from './owner';
 
 describe('#OwnerService.createNew.SuitTests', () => {
@@ -24,10 +21,7 @@ describe('#OwnerService.createNew.SuitTests', () => {
         documentNumber: ownerRecord.documentNumber,
         birthDate: ownerRecord.birthDate,
       }),
-    ).resolves.toEqual({
-      ...ownerRecord,
-      birthDate: DateTime.fromISO(ownerRecord.birthDate),
-    });
+    ).resolves.toEqual(ownerRecord);
   });
 
   test.each([

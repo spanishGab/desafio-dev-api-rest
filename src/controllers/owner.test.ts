@@ -2,15 +2,17 @@ import request from 'supertest';
 
 import app from '../app';
 import props from '../common/props';
-import { StatusCodes } from 'http-status-codes';
+import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { NewOwner, OwnerService } from '../services/owner';
 import { DateTime } from 'luxon';
-import { OwnerCreationError } from '../errors/businessError';
+import { OwnerCreationError, OwnerNotFoundError } from '../errors/businessError';
+import CPF from '../utils/CPF';
 
 describe('#OwnerController.createAccountOwner.SuiteTests', () => {
   afterEach(() => {
     jest.restoreAllMocks();
-  })
+  });
+
   const newOwner = {
     name: 'Vasily Korpof',
     documentNumber: '36226370050',
@@ -24,7 +26,6 @@ describe('#OwnerController.createAccountOwner.SuiteTests', () => {
         return {
           id: 1,
           ...owner,
-          birthDate: DateTime.fromISO(owner.birthDate),
         };
       });
 
@@ -56,5 +57,55 @@ describe('#OwnerController.createAccountOwner.SuiteTests', () => {
 
     expect(response.body.code).toBe(OwnerCreationError.code);
     expect(response.body.description).toBe(OwnerCreationError.description);
+  });
+});
+
+describe('#OwnerController.getAccountOwner.SuiteTests', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  const owner = {
+    id: 1,
+    name: 'Vasily Korpof',
+    documentNumber: '36226370050',
+    birthDate: '1988-09-01',
+  };
+
+  it('Should find one account owner successfully', async () => {
+    const findOneSpy = jest
+      .spyOn(OwnerService.prototype, 'findOne')
+      .mockImplementation(async (documentNumber: CPF) => {
+        return owner;
+      });
+
+    const response = await request(app)
+      .get(`/${props.VERSION}/account-owner`)
+      .query({ documentNumber: owner.documentNumber })
+      .expect(StatusCodes.OK);
+
+    expect(findOneSpy).toHaveBeenCalledTimes(1);
+    expect(findOneSpy).toHaveBeenCalledWith(new CPF(owner.documentNumber));
+
+    expect(response.body.message).toBe(ReasonPhrases.OK);
+    expect(response.body.content).toStrictEqual({ accountOwner: owner });
+  });
+
+  it('Should throw an error while trying to recover an account owner', async () => {
+    const findOneSpy = jest
+      .spyOn(OwnerService.prototype, 'findOne')
+      .mockImplementation(async () => {
+        throw OwnerNotFoundError;
+      });
+
+    const response = await request(app)
+      .get(`/${props.VERSION}/account-owner`)
+      .query({ documentNumber: owner.documentNumber })
+      .expect(StatusCodes.NOT_FOUND);
+
+    expect(findOneSpy).toHaveBeenCalledTimes(1);
+
+    expect(response.body.code).toBe(OwnerNotFoundError.code);
+    expect(response.body.description).toBe(OwnerNotFoundError.description);
   });
 });

@@ -1,12 +1,17 @@
+import { Owner } from '@prisma/client';
 import { Request, Response } from 'express';
-import { StatusCodes } from 'http-status-codes';
+import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import props from '../common/props';
 import { ISuccessResponseBody } from '../interfaces/response';
-import RequestContextManager from '../middlewares/RequestContextManager';
-import { ownerCreationSchema } from '../schemas/owner';
+import { ownerRecoverySchema, ownerCreationSchema } from '../schemas/owner';
 import { OwnerService } from '../services/owner';
+import CPF from '../utils/CPF';
 import logger from '../utils/Logger';
 import { Validator } from '../validators/validator';
+
+interface IRecoverOwnerResponse {
+  accountOwner: Owner,
+}
 
 export interface IOwnerRequestBody {
   name: string;
@@ -15,6 +20,32 @@ export interface IOwnerRequestBody {
 }
 
 export class OwnerController {
+  static async recoverAccountOwner(
+    req: Request,
+    res: Response<ISuccessResponseBody<IRecoverOwnerResponse>>,
+  ): Promise<Response> {
+    logger.info({
+      event: 'OwnerController.recoverAccountOwner.init',
+      details: { inputData: req.query },
+    });
+
+    const { documentNumber } = await Validator.validateFieldsBySchema<{
+      documentNumber: string;
+    }>(req.query, ownerRecoverySchema);
+
+    const ownerService = new OwnerService();
+
+    const owner: Owner = await ownerService.findOne(new CPF(documentNumber));
+
+    return res.status(StatusCodes.OK).json({
+      uuid: req.id,
+      message: ReasonPhrases.OK,
+      content: {
+        accountOwner: owner,
+      },
+    });
+  }
+
   static async createAccountOwner(
     req: Request,
     res: Response<ISuccessResponseBody>,
@@ -35,9 +66,9 @@ export class OwnerController {
 
     return res
       .status(StatusCodes.CREATED)
-      .header({ location: `/${props.VERSION}/account-owner/${id}`})
+      .header({ location: `/${props.VERSION}/account-owner/${id}` })
       .json({
-        uuid: RequestContextManager.getRequestId(),
+        uuid: req.id,
         message: 'Created Owner!',
       });
   }

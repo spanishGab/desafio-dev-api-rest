@@ -27,3 +27,9 @@ export const OwnerCreationError = new BusinessError(
   StatusCodes.INTERNAL_SERVER_ERROR,
 );
 
+export const OwnerNotFoundError = new BusinessError(
+  'owner-not-found',
+  'Owner not found',
+  StatusCodes.NOT_FOUND,
+);
+

@@ -1,4 +1,5 @@
-export interface ISuccessResponseBody {
+export interface ISuccessResponseBody<ContentType = any> {
   uuid: string;
   message: string;
+  content?: ContentType;
 }

@@ -8,6 +8,12 @@ import {
 } from './errorMessages';
 import { cpfField } from './fields';
 
+export const ownerRecoverySchema = Joi.object({
+  documentNumber: cpfField
+    .required()
+    .messages({ '*': INVALID_DOCUMENT_NUMBER }),
+});
+
 export const ownerCreationSchema = Joi.object({
   name: Joi.string()
     .required()
