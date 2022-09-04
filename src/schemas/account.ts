@@ -7,8 +7,6 @@ import {
   INVALID_BALANCE,
 } from './errorMessages';
 
-export const dateField = Joi.string().isoDate();
-
 export const accountCreationSchema = Joi.object({
   documentNumber: Joi.string()
     .required()

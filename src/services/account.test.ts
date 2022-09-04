@@ -5,7 +5,7 @@ import { AccountCreationError } from '../errors/businessError';
 import { AccountService, AccountType } from './account';
 
 describe('#AccountService.createNew.SuitTests', () => {
-  const personRecord = {
+  const ownerRecord = {
     id: 1,
     name: 'Vasily Korpof',
     documentNumber: '12345678910',
@@ -24,7 +24,7 @@ describe('#AccountService.createNew.SuitTests', () => {
   };
 
   it('Should create a new account record successfully in the database', async () => {
-    prismaMock.owner.findUniqueOrThrow.mockResolvedValue(personRecord);
+    prismaMock.owner.findUniqueOrThrow.mockResolvedValue(ownerRecord);
 
     prismaMock.account.create.mockResolvedValue(accountRecord);
 
@@ -75,7 +75,7 @@ describe('#AccountService.createNew.SuitTests', () => {
           findPersonMock,
         );
       } else {
-        prismaMock.owner.findUniqueOrThrow.mockResolvedValue(personRecord);
+        prismaMock.owner.findUniqueOrThrow.mockResolvedValue(ownerRecord);
       }
 
       if (createAccountMock) {
@@ -95,6 +95,7 @@ describe('#AccountService.createNew.SuitTests', () => {
           },
           '12345678910',
         );
+        throw new Error('Test faild! Should not reach here');
       } catch (error) {
         expect(error).toStrictEqual(expectedResult);
       }

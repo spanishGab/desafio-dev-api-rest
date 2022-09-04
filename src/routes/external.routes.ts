@@ -1,6 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { AccountController } from '../controllers/account';
+import { OwnerController } from '../controllers/owner';
 
 import { ISuccessResponseBody } from '../interfaces/response';
 import logger from '../utils/Logger';
@@ -26,7 +27,7 @@ router.post('/', AccountController.createAccount);
 
 router.get('/account-owner/:id');
 
-router.post('/account-owner/');
+router.post('/account-owner', OwnerController.createAccountOwner);
 
 router.post('/deposit');
 

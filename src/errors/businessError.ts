@@ -22,7 +22,7 @@ export const AccountCreationError = new BusinessError(
 );
 
 export const OwnerCreationError = new BusinessError(
-  'account-creation',
+  'owner-creation',
   'Error while trying to create an account Owner',
   StatusCodes.INTERNAL_SERVER_ERROR,
 );

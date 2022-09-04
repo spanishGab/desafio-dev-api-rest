@@ -1,9 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { ICustomError } from '../interfaces/customError';
-import requestContextManager from "../middlewares/RequestContextManager";
 
-export class BaseInternalError extends Error implements ICustomError {
-  public readonly id: string = requestContextManager.getRequestId();
+export class BaseInternalError extends Error implements Omit<ICustomError, 'id'> {
   public readonly code: string = String(StatusCodes.INTERNAL_SERVER_ERROR);
   public readonly description: string;
   public readonly httpStatusCode: number = StatusCodes.INTERNAL_SERVER_ERROR;
@@ -13,9 +11,8 @@ export class BaseInternalError extends Error implements ICustomError {
     this.description = description;
   }
 
-  public toJSON(): ICustomError {
+  public toJSON(): Omit<ICustomError, 'id'> {
     return {
-      id: this.id,
       code: this.code,
       description: this.description,
     }

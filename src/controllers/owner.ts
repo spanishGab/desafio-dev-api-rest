@@ -35,7 +35,7 @@ export class OwnerController {
 
     return res
       .status(StatusCodes.CREATED)
-      .header({ Location: `/${props.VERSION}/account-owner/${id}`})
+      .header({ location: `/${props.VERSION}/account-owner/${id}`})
       .json({
         uuid: RequestContextManager.getRequestId(),
         message: 'Created Owner!',

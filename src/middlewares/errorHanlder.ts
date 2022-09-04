@@ -18,7 +18,10 @@ export function handleError(
       details: { error: err },
     });
 
-    return res.status(err.httpStatusCode).json(err.toJSON());
+    return res.status(err.httpStatusCode).json({
+      id: req.id,
+      ...err.toJSON(),
+    });
   }
 
   if (err instanceof BaseInternalError) {
@@ -27,7 +30,10 @@ export function handleError(
       details: { error: err },
     });
 
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err.toJSON());
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      id: req.id,
+      ...err.toJSON(),
+    });
   }
 
   if (err instanceof RequestError) {
@@ -36,7 +42,10 @@ export function handleError(
       details: { error: err },
     });
 
-    return res.status(StatusCodes.BAD_REQUEST).json(err.toJSON());
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      id: req.id,
+      ...err.toJSON(),
+    });
   }
 
   if (err instanceof SyntaxError) {

@@ -1,5 +1,6 @@
 import Joi from 'joi';
-import { dateField } from './account';
+import { DateTime } from 'luxon';
+import { dateField } from './fields';
 import {
   INVALID_BIRTH_DATE,
   INVALID_DOCUMENT_NUMBER,
@@ -19,5 +20,14 @@ export const ownerCreationSchema = Joi.object({
   documentNumber: cpfField
     .required()
     .messages({ '*': INVALID_DOCUMENT_NUMBER }),
-  birthDate: dateField.required().messages({ '*': INVALID_BIRTH_DATE }),
+  birthDate: dateField
+    .required()
+    .custom((date, helpers) => {
+      if (DateTime.now().year - DateTime.fromISO(date).year < 18) {
+        return helpers.error('birthDate.base');
+      }
+
+      return date;
+    })
+    .messages({ '*': INVALID_BIRTH_DATE }),
 });

@@ -1,14 +1,13 @@
 import httpMocks from 'node-mocks-http';
 import {v4 as uuidV4} from 'uuid';
 
-import {IRequest} from '../routes/internal.routes';
 import RequestContextManager from './RequestContextManager';
 
 jest.setTimeout(50000);
 
 describe('#RequestContextManager.createContext.SuiteTests', () => {
   it('Should create a request context successfully', async () => {
-    const request = httpMocks.createRequest() as IRequest;
+    const request = httpMocks.createRequest();
     const response = httpMocks.createResponse();
     const expected = {
       requestId: uuidV4(), // cases where a random uuid is generated for the requestId
@@ -27,7 +26,7 @@ describe('#RequestContextManager.createContext.SuiteTests', () => {
 describe('#RequestContextManager.getRequestId.SuiteTests', () => {
   test.each([
     {
-      request: httpMocks.createRequest() as IRequest,
+      request: httpMocks.createRequest(),
       response: httpMocks.createResponse(),
       expected: uuidV4(), // cases where a random uuid is generated for the requestId
     },

@@ -1,9 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { IErrorDetails, ICustomError } from "../interfaces/customError";
-import requestContextManager from "../middlewares/RequestContextManager";
 
-export class RequestError extends Error implements ICustomError {
-  public readonly id: string = requestContextManager.getRequestId();
+export class RequestError extends Error implements Omit<ICustomError, 'id'> {
   public readonly code: string = String(StatusCodes.BAD_REQUEST);
   public readonly description: string;
   public readonly details: IErrorDetails[];
@@ -15,9 +13,8 @@ export class RequestError extends Error implements ICustomError {
     this.details = details;
   }
 
-  public toJSON(): ICustomError {
+  public toJSON(): Omit<ICustomError, 'id'> {
     return {
-      id: this.id,
       code: this.code,
       description: this.description,
       details: this.details,
