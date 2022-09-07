@@ -17,13 +17,13 @@ export class BusinessError extends BaseInternalError {
 
 export const AccountCreationError = new BusinessError(
   'account-creation',
-  'Error while trying to create a new account',
+  'Error while trying to create the account',
   StatusCodes.INTERNAL_SERVER_ERROR,
 );
 
 export const OwnerCreationError = new BusinessError(
   'owner-creation',
-  'Error while trying to create an account Owner',
+  'Error while trying to create the account Owner',
   StatusCodes.INTERNAL_SERVER_ERROR,
 );
 

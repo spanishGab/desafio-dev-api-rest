@@ -7,6 +7,7 @@ import {
   INVALID_OWNER_NAME,
 } from './errorMessages';
 import { cpfField } from './fields';
+import { DateUtils } from '../utils/date';
 
 export const ownerRecoverySchema = Joi.object({
   documentNumber: cpfField
@@ -20,7 +21,7 @@ export const ownerCreationSchema = Joi.object({
     .min(5)
     .max(100)
     .regex(
-      /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u,
+      /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð .'-]+$/u,
     )
     .messages({ '*': INVALID_OWNER_NAME }),
   documentNumber: cpfField
@@ -29,7 +30,7 @@ export const ownerCreationSchema = Joi.object({
   birthDate: dateField
     .required()
     .custom((date, helpers) => {
-      if (DateTime.now().year - DateTime.fromISO(date).year < 18) {
+      if (DateUtils.saoPauloNow().diff(DateTime.fromISO(date), 'years').years < 18) {
         return helpers.error('birthDate.base');
       }
 

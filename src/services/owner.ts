@@ -7,7 +7,7 @@ import {
   OwnerNotFoundError,
 } from '../errors/businessError';
 import CPF from '../utils/CPF';
-import { SHORT_ISO8601 } from '../utils/DateUtils';
+import { SHORT_ISO8601 } from '../utils/date';
 import logger from '../utils/Logger';
 
 export type NewOwner = Omit<Owner, 'id'>;

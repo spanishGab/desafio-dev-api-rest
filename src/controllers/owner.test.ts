@@ -4,7 +4,6 @@ import app from '../app';
 import props from '../common/props';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { NewOwner, OwnerService } from '../services/owner';
-import { DateTime } from 'luxon';
 import { OwnerCreationError, OwnerNotFoundError } from '../errors/businessError';
 import CPF from '../utils/CPF';
 

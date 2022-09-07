@@ -62,11 +62,11 @@ export class OwnerController {
 
     const ownerService = new OwnerService();
 
-    const { id } = await ownerService.createNew(inputData);
+    const { documentNumber } = await ownerService.createNew(inputData);
 
     return res
       .status(StatusCodes.CREATED)
-      .header({ location: `/${props.VERSION}/account-owner/${id}` })
+      .header({ location: `/${props.VERSION}/account-owner?documentNumber=${documentNumber}` })
       .json({
         uuid: req.id,
         message: 'Created Owner!',

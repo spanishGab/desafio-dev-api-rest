@@ -18,34 +18,34 @@ export default class CPF {
       parseInt(digit, 10),
     );
 
-    const calculatedDigitoVerificador: string =
-      this.calculateFirstDigitoVerificador(strippedDocument) +
-      this.calculateSecondDigitoVerificador(strippedDocument);
+    const calculatedCheckDigit: string =
+      this.calculateFirstCheckDigit(strippedDocument) +
+      this.calculateSecondCheckDigit(strippedDocument);
 
-    return calculatedDigitoVerificador === this.code.slice(-2);
+    return calculatedCheckDigit === this.code.slice(-2);
   }
 
-  private calculateFirstDigitoVerificador(documentNumber: number[]): string {
+  private calculateFirstCheckDigit(documentNumber: number[]): string {
     const checkSum = documentNumber
       .slice(0, 9)
       .reduce((previousResult: number, currentDigit: number, index: number) => {
         return currentDigit * (10 - index) + previousResult;
       }, 0);
 
-    return String(this.generateDigitoVerificador(checkSum));
+    return String(this.generateCheckDigit(checkSum));
   }
 
-  private calculateSecondDigitoVerificador(documentNumber: number[]): string {
+  private calculateSecondCheckDigit(documentNumber: number[]): string {
     const checkSum = documentNumber
       .slice(0, 10)
       .reduce((previousResult: number, currentDigit: number, index: number) => {
         return currentDigit * (11 - index) + previousResult;
       }, 0);
 
-    return String(this.generateDigitoVerificador(checkSum));
+    return String(this.generateCheckDigit(checkSum));
   }
 
-  private generateDigitoVerificador(checkSum: number) {
+  private generateCheckDigit(checkSum: number) {
     let digitoVerificador = (checkSum * 10) % 11;
 
     if (digitoVerificador === 10) {
