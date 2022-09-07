@@ -6,27 +6,29 @@ import {
   INVALID_ACCOUNT_TYPE,
   INVALID_BALANCE,
 } from './errorMessages';
+import { cpfField } from './fields';
 
 export const accountCreationSchema = Joi.object({
-  documentNumber: Joi.string()
+  ownerDocumentNumber: cpfField
     .required()
-    .length(11)
     .messages({ '*': INVALID_DOCUMENT_NUMBER }),
-  type: Joi.string()
-    .required()
-    .allow(
-      AccountType.corrente,
-      AccountType.poupanca,
-      AccountType.salario,
-      AccountType.conjunta,
-    )
-    .messages({ '*': INVALID_ACCOUNT_TYPE }),
-  balance: Joi.number()
-    .required()
-    .positive()
-    .messages({ '*': INVALID_BALANCE }),
-  dailyWithdrawalLimit: Joi.number()
-    .required()
-    .positive()
-    .messages({ '*': INVALID_DAILY_WITHDRAWAL_LIMIT }),
+  accountInformation: Joi.object({
+    type: Joi.string()
+      .required()
+      .allow(
+        AccountType.corrente,
+        AccountType.poupanca,
+        AccountType.salario,
+        AccountType.conjunta,
+      )// TODO FIX THIS BUG
+      .messages({ '*': INVALID_ACCOUNT_TYPE }),
+    balance: Joi.number()
+      .required()
+      .positive()
+      .messages({ '*': INVALID_BALANCE }),
+    dailyWithdrawalLimit: Joi.number()
+      .required()
+      .positive()
+      .messages({ '*': INVALID_DAILY_WITHDRAWAL_LIMIT }),
+  }),
 });

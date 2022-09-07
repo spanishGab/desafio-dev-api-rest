@@ -4,6 +4,7 @@ import { DateTime } from 'luxon';
 import { AccountCreationError } from '../errors/businessError';
 import dbClient from '../db';
 import logger from '../utils/Logger';
+import CPF from '../utils/CPF';
 
 export enum AccountType {
   corrente = 'corrente',
@@ -28,7 +29,7 @@ export type NewAccount = Omit<IAccount, 'id' | 'ownerId' | 'createdAt' | 'update
 export class AccountService {
   public async createNew(
     accountData: NewAccount,
-    ownerDocumentNumber: string,
+    ownerDocumentNumber: CPF,
   ): Promise<IAccount> {
     logger.info({
       event: 'AccountService.createNew.init',
@@ -38,7 +39,7 @@ export class AccountService {
     try {
       const { id: accountOwnerId } =
         await dbClient.owner.findUniqueOrThrow({
-          where: { documentNumber: ownerDocumentNumber },
+          where: { documentNumber: ownerDocumentNumber.code },
           select: {
             id: true,
           },

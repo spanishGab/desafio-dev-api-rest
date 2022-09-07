@@ -6,13 +6,14 @@ import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { NewOwner, OwnerService } from '../services/owner';
 import { OwnerCreationError, OwnerNotFoundError } from '../errors/businessError';
 import CPF from '../utils/CPF';
+import { IOwnerRequestBody } from './owner';
 
 describe('#OwnerController.createAccountOwner.SuiteTests', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  const newOwner = {
+  const newOwner: IOwnerRequestBody = {
     name: 'Vasily Korpof',
     documentNumber: '36226370050',
     birthDate: '1988-09-01',
@@ -43,7 +44,7 @@ describe('#OwnerController.createAccountOwner.SuiteTests', () => {
   it('Should throw an error while trying to create a new account owner', async () => {
     const createNewSpy = jest
       .spyOn(OwnerService.prototype, 'createNew')
-      .mockImplementation(async () => {
+      .mockImplementation(async (owner: NewOwner) => {
         throw OwnerCreationError;
       });
 
@@ -53,6 +54,7 @@ describe('#OwnerController.createAccountOwner.SuiteTests', () => {
       .expect(StatusCodes.INTERNAL_SERVER_ERROR);
 
     expect(createNewSpy).toHaveBeenCalledTimes(1);
+    expect(createNewSpy).toHaveBeenCalledWith(newOwner);
 
     expect(response.body.code).toBe(OwnerCreationError.code);
     expect(response.body.description).toBe(OwnerCreationError.description);

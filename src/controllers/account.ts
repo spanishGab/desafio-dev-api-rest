@@ -5,14 +5,17 @@ import { ISuccessResponseBody } from '../interfaces/response';
 import RequestContextManager from '../middlewares/RequestContextManager';
 import { accountCreationSchema } from '../schemas/account';
 import { AccountService, AccountType, NewAccount } from '../services/account';
+import CPF from '../utils/CPF';
 import logger from '../utils/Logger';
 import { Validator } from '../validators/validator';
 
 export interface IAccountRequestBody {
-  documentNumber: string;
-  type: AccountType;
-  balance: number;
-  dailyWithdrawalLimit: number;
+  ownerDocumentNumber: string;
+  accountInformation: {
+    type: AccountType;
+    balance: number;
+    dailyWithdrawalLimit: number;
+  }
 }
 
 export class AccountController {
@@ -31,15 +34,15 @@ export class AccountController {
     const accountService = new AccountService();
 
     const accountData: NewAccount = {
-      balance: inputData.balance,
-      dailyWithdrawalLimit: inputData.dailyWithdrawalLimit,
-      type: inputData.type,
+      balance: inputData.accountInformation.balance,
+      dailyWithdrawalLimit: inputData.accountInformation.dailyWithdrawalLimit,
+      type: inputData.accountInformation.type,
       isActive: true,
     };
 
     const { id } = await accountService.createNew(
       accountData,
-      inputData.documentNumber,
+      new CPF(inputData.ownerDocumentNumber),
     );
 
     return res

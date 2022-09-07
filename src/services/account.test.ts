@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import { DateTime } from 'luxon';
 import { prismaMock } from '../../prismaSingleton';
 import { AccountCreationError } from '../errors/businessError';
+import CPF from '../utils/CPF';
 import { AccountService, AccountType } from './account';
 
 describe('#AccountService.createNew.SuitTests', () => {
@@ -38,7 +39,7 @@ describe('#AccountService.createNew.SuitTests', () => {
           isActive: true,
           type: 'corrente' as AccountType,
         },
-        '12345678910',
+        new CPF('12345678910'),
       ),
     ).resolves.toEqual({
       id: 1,
@@ -93,7 +94,7 @@ describe('#AccountService.createNew.SuitTests', () => {
             isActive: true,
             type: 'corrente' as AccountType,
           },
-          '12345678910',
+          new CPF('12345678910'),
         );
         throw new Error('Test faild! Should not reach here');
       } catch (error) {
