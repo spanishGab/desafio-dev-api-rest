@@ -2,12 +2,12 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
 }
 
 model Owner {
@@ -15,12 +15,21 @@ model Owner {
     name           String
     documentNumber String @unique @map("document_number")
     birthDate      String @map("birth_date")
-    accounts       Account[]
+    accountOwners   AccountOwner[]
+}
+
+model AccountOwner {
+    ownerId   Int @map("owner_id")
+    accountId Int @map("account_id")
+
+    owner     Owner @relation(fields: [ownerId], references: [id])
+    account   Account @relation(fields: [accountId], references: [id])
+
+    @@id([ownerId, accountId])
 }
 
 model Account {
     id                   Int @id @default(autoincrement())
-    ownerId             Int @map("owner_id")
     balance              Decimal @default(0)
     dailyWithdrawalLimit Decimal @default(500) @map("daily_withdrawal_limit")
     isActive             Boolean @default(false) @map("is_active")
@@ -28,17 +37,16 @@ model Account {
     createdAt            DateTime @default(now()) @map("created_at")
     updatedAt            DateTime @default(now()) @map("updated_at")
 
-    owner               Owner @relation(fields: [ownerId], references: [id])
+    accountOwners         AccountOwner[]
     operations           Operation[]
-
 }
 
 model Operation {
-    id Int @id @default(autoincrement())
-    accountId Int @map("account_id")
-    amount Decimal
+    id                   Int @id @default(autoincrement())
+    accountId            Int @map("account_id")
+    amount               Decimal
     createdAt            DateTime @default(now()) @map("created_at")
     updatedAt            DateTime @default(now()) @map("updated_at")
 
-    account Account @relation(fields: [accountId], references: [id])
+    account              Account @relation(fields: [accountId], references: [id])
 }

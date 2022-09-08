@@ -21,10 +21,22 @@ export const AccountCreationError = new BusinessError(
   StatusCodes.INTERNAL_SERVER_ERROR,
 );
 
+export const WrongAccountTypeError = new BusinessError(
+  'wrong-account-type',
+  "There is something wrong with the owners specified for this account type",
+  StatusCodes.BAD_REQUEST,
+);
+
 export const OwnerCreationError = new BusinessError(
   'owner-creation',
   'Error while trying to create the account Owner',
   StatusCodes.INTERNAL_SERVER_ERROR,
+);
+
+export const OwnerAlreadyExistsError = new BusinessError(
+  'owner-exists',
+  'There already exists an owner registered for the given documentNumber',
+  StatusCodes.BAD_REQUEST,
 );
 
 export const OwnerNotFoundError = new BusinessError(

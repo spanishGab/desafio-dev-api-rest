@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 
 import dbClient from '../db';
 import {
+  OwnerAlreadyExistsError,
   OwnerCreationError,
   OwnerNotFoundError,
 } from '../errors/businessError';
@@ -24,6 +25,21 @@ export class OwnerService {
     logger.info({ event: 'OwnerService.createNew', details: { owner } });
 
     try {
+      const existingOwner = await dbClient.owner.findFirst({
+        where: {
+          documentNumber: owner.documentNumber,
+        },
+        select: defaultOwnerSelect,
+      });
+
+      if (existingOwner) {
+        logger.warn({
+          event: 'OwnerService.createNew.ownerAlreadyExists',
+          details: { existingOwner },
+        });
+        throw OwnerAlreadyExistsError;
+      }
+
       const createdOwner: Owner = await dbClient.owner.create({
         data: owner,
         select: defaultOwnerSelect,
@@ -34,24 +50,28 @@ export class OwnerService {
       logger.error({
         event: 'OwnerService.createNew.error',
         details: {
-          error: error.message,
+          error: error.message || error,
         },
       });
+
+      if (error.code === OwnerAlreadyExistsError.code) {
+        throw error;
+      }
 
       throw OwnerCreationError;
     }
   }
 
-  public async findOne(documentNumber: CPF) {
+  public async findOne(documentNumber: string): Promise<Owner> {
     logger.info({
-      event: 'OwnerService.createNew',
+      event: 'OwnerService.findOne',
       details: { documentNumber },
     });
 
     try {
       const owner = await dbClient.owner.findUniqueOrThrow({
         where: {
-          documentNumber: documentNumber.code,
+          documentNumber: documentNumber,
         },
         select: defaultOwnerSelect,
       });

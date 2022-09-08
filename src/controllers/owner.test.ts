@@ -76,7 +76,7 @@ describe('#OwnerController.getAccountOwner.SuiteTests', () => {
   it('Should find one account owner successfully', async () => {
     const findOneSpy = jest
       .spyOn(OwnerService.prototype, 'findOne')
-      .mockImplementation(async (documentNumber: CPF) => {
+      .mockImplementation(async (documentNumber: string) => {
         return owner;
       });
 
@@ -86,7 +86,7 @@ describe('#OwnerController.getAccountOwner.SuiteTests', () => {
       .expect(StatusCodes.OK);
 
     expect(findOneSpy).toHaveBeenCalledTimes(1);
-    expect(findOneSpy).toHaveBeenCalledWith(new CPF(owner.documentNumber));
+    expect(findOneSpy).toHaveBeenCalledWith(owner.documentNumber);
 
     expect(response.body.message).toBe(ReasonPhrases.OK);
     expect(response.body.content).toStrictEqual({ accountOwner: owner });

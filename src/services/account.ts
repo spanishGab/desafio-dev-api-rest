@@ -1,10 +1,13 @@
-import { Prisma, Account } from '@prisma/client';
+import { Prisma, Account, Owner } from '@prisma/client';
+import { v4 as uuidV4 } from 'uuid';
 
 import { DateTime } from 'luxon';
-import { AccountCreationError } from '../errors/businessError';
+import {
+  AccountCreationError,
+  WrongAccountTypeError,
+} from '../errors/businessError';
 import dbClient from '../db';
 import logger from '../utils/Logger';
-import CPF from '../utils/CPF';
 
 export enum AccountType {
   corrente = 'corrente',
@@ -15,7 +18,6 @@ export enum AccountType {
 
 export interface IAccount {
   id: number;
-  ownerId: number;
   balance: number;
   dailyWithdrawalLimit: number;
   isActive: boolean;
@@ -24,32 +26,71 @@ export interface IAccount {
   updatedAt: DateTime;
 }
 
-export type NewAccount = Omit<IAccount, 'id' | 'ownerId' | 'createdAt' | 'updatedAt'>;
+export type NewAccount = Omit<
+  IAccount,
+  'id' | 'ownerId' | 'createdAt' | 'updatedAt'
+>;
 
 export class AccountService {
   public async createNew(
     accountData: NewAccount,
-    ownerDocumentNumber: CPF,
+    ownersDocumentNumbers: string[],
   ): Promise<IAccount> {
     logger.info({
       event: 'AccountService.createNew.init',
-      details: { accountData: accountData, ownerDocumentNumber },
+      details: { accountData: accountData, ownersDocumentNumbers },
     });
 
-    try {
-      const { id: accountOwnerId } =
-        await dbClient.owner.findUniqueOrThrow({
-          where: { documentNumber: ownerDocumentNumber.code },
-          select: {
-            id: true,
-          },
-        });
+    const ownersSafeGuard = new Set(ownersDocumentNumbers);
 
-      const createdAccount: Account = await dbClient.account.create({
-        data: { ownerId: accountOwnerId, ...accountData },
+    if (
+      (accountData.type !== AccountType.conjunta
+      && ownersSafeGuard.size > 1)
+      || (accountData.type === AccountType.conjunta
+          && ownersSafeGuard.size === 1)
+    ) {
+      logger.warn({
+        event: 'AccountService.createNew.wrongAccountType',
+        details: { accountData: accountData, ownersDocumentNumbers },
+      });
+      throw WrongAccountTypeError;
+    }
+
+    try {
+      const ownerIds = await dbClient.owner.findMany({
+        where: {
+          documentNumber: {
+            in: ownersDocumentNumbers,
+          },
+        },
         select: {
           id: true,
-          ownerId: true,
+        },
+      });
+
+      if (ownerIds.length === 0) {
+        throw new Prisma.NotFoundError(
+          'Could not find any owner for the given ownerDocumetNumbers',
+        );
+      }
+
+      const createdAccount: Account = await dbClient.account.create({
+        data: {
+          ...accountData,
+          accountOwners: {
+            create: ownerIds.map(({ id }) => {
+              return {
+                owner: {
+                  connect: {
+                    id,
+                  },
+                },
+              };
+            }),
+          },
+        },
+        select: {
+          id: true,
           balance: true,
           dailyWithdrawalLimit: true,
           isActive: true,
@@ -65,9 +106,8 @@ export class AccountService {
         logger.error({
           event: 'AccountService.createNew.ownerNotFound.error',
           details: {
-            message: 'Could not find a owner for the given ownerDocumetNumber',
             error: error.message,
-            ownerDocumentNumber,
+            ownersDocumentNumbers,
           },
         });
       }

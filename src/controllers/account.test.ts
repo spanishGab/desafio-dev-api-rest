@@ -4,7 +4,6 @@ import app from '../app';
 import props from '../common/props';
 import { AccountCreationError } from '../errors/businessError';
 import { AccountService, AccountType, NewAccount } from '../services/account';
-import CPF from '../utils/CPF';
 import { DateUtils } from '../utils/date';
 import { IAccountRequestBody } from './account';
 
@@ -14,18 +13,18 @@ describe('#AccountController.createAccount.SuiteTests', () => {
   });
 
   const newAccount: IAccountRequestBody = {
-    ownerDocumentNumber: '83065825007',
     accountInformation: {
       type: AccountType.corrente,
       balance: 150,
       dailyWithdrawalLimit: 200,
-    }
+    },
+    ownersDocumentNumbers: ['83065825007'],
   };
 
   it('Should create a new account successfully', async () => {
     const createNewSpy = jest
       .spyOn(AccountService.prototype, 'createNew')
-      .mockImplementation(async (account: NewAccount, documentNumber: CPF) => {
+      .mockImplementation(async (account: NewAccount, ownersDocumentNumbers: string[]) => {
         return {
           id: 1,
           ownerId: 1,
@@ -51,7 +50,7 @@ describe('#AccountController.createAccount.SuiteTests', () => {
         type: newAccount.accountInformation.type,
         isActive: true,
       },
-      new CPF(newAccount.ownerDocumentNumber),
+      newAccount.ownersDocumentNumbers,
     );
 
     expect(response.body.message).toBe('Created Account!');
@@ -61,7 +60,7 @@ describe('#AccountController.createAccount.SuiteTests', () => {
   it('Should create a new account successfully', async () => {
     const createNewSpy = jest
       .spyOn(AccountService.prototype, 'createNew')
-      .mockImplementation(async (account: NewAccount, documentNumber: CPF) => {
+      .mockImplementation(async (account: NewAccount, ownersDocumentNumbers: string[]) => {
         throw AccountCreationError;
       });
 
@@ -78,7 +77,7 @@ describe('#AccountController.createAccount.SuiteTests', () => {
         type: newAccount.accountInformation.type,
         isActive: true,
       },
-      new CPF(newAccount.ownerDocumentNumber),
+      newAccount.ownersDocumentNumbers,
     );
 
     expect(response.body.code).toBe(AccountCreationError.code);

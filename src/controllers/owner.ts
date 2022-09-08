@@ -35,7 +35,7 @@ export class OwnerController {
 
     const ownerService = new OwnerService();
 
-    const owner: Owner = await ownerService.findOne(new CPF(documentNumber));
+    const owner: Owner = await ownerService.findOne(documentNumber);
 
     return res.status(StatusCodes.OK).json({
       uuid: req.id,
