@@ -23,20 +23,22 @@ router.get(
   },
 );
 
+// Account owner functionalities
+router.get('/recover-owner/:documentNumber', OwnerController.recoverAccountOwner);
+
+router.post('/create-owner', OwnerController.createAccountOwner);
+
+// Account operation functionalities
 router.post('/', AccountController.createAccount);
 
-router.route('/account-owner')
-  .get(OwnerController.recoverAccountOwner)
-  .post(OwnerController.createAccountOwner);
+router.get('/account/:id', AccountController.recoverAccount);
 
-router.post('/deposit');
+router.put('/deposit/:accountId');
 
-router.get('/balance');
+router.post('/withdrawal/:accountId');
 
-router.post('/withdrawal');
+router.put('/block-account/:accountId');
 
-router.put('/block-account');
-
-router.get('/receipt');
+router.get('/receipt/:accountId');
 
 export default router;

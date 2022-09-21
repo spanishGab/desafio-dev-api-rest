@@ -4,10 +4,12 @@ import { v4 as uuidV4 } from 'uuid';
 import { DateTime } from 'luxon';
 import {
   AccountCreationError,
+  AccountNotFoundError,
   WrongAccountTypeError,
 } from '../errors/businessError';
 import dbClient from '../db';
 import logger from '../utils/Logger';
+import { AccountServiceError } from '../errors/internalErrors';
 
 export enum AccountType {
   corrente = 'corrente',
@@ -44,10 +46,8 @@ export class AccountService {
     const ownersSafeGuard = new Set(ownersDocumentNumbers);
 
     if (
-      (accountData.type !== AccountType.conjunta
-      && ownersSafeGuard.size > 1)
-      || (accountData.type === AccountType.conjunta
-          && ownersSafeGuard.size === 1)
+      (accountData.type !== AccountType.conjunta && ownersSafeGuard.size > 1) ||
+      (accountData.type === AccountType.conjunta && ownersSafeGuard.size === 1)
     ) {
       logger.warn({
         event: 'AccountService.createNew.wrongAccountType',
@@ -120,6 +120,43 @@ export class AccountService {
       });
 
       throw AccountCreationError;
+    }
+  }
+
+  public async findOne(accountId: number): Promise<IAccount> {
+    logger.info({event: 'AccountService.findOne', details: { accountId }});
+
+    try {
+      const accountInfo: IAccount = this.fromDBRecord(
+        await dbClient.account.findUniqueOrThrow({
+          where: {
+            id: accountId,
+          },
+        })
+      );
+
+      return accountInfo;
+    } catch (error) {
+      if (error instanceof Prisma.NotFoundError) {
+        logger.error({
+          event: 'AccountService.findOne.accountNotFound.error',
+          details: {
+            error: error.message,
+            accountId,
+          },
+        });
+
+        throw AccountNotFoundError;
+      }
+
+      logger.error({
+        event: 'AccountService.findOne.error',
+        details: {
+          error: error.message,
+        },
+      });
+
+      throw AccountServiceError;
     }
   }
 

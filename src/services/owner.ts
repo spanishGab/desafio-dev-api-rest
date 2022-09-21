@@ -69,7 +69,7 @@ export class OwnerService {
     });
 
     try {
-      const owner = await dbClient.owner.findUniqueOrThrow({
+      const owner: Owner = await dbClient.owner.findUniqueOrThrow({
         where: {
           documentNumber: documentNumber,
         },

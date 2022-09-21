@@ -5,7 +5,6 @@ import props from '../common/props';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import { NewOwner, OwnerService } from '../services/owner';
 import { OwnerCreationError, OwnerNotFoundError } from '../errors/businessError';
-import CPF from '../utils/CPF';
 import { IOwnerRequestBody } from './owner';
 
 describe('#OwnerController.createAccountOwner.SuiteTests', () => {
@@ -30,7 +29,7 @@ describe('#OwnerController.createAccountOwner.SuiteTests', () => {
       });
 
     const response = await request(app)
-      .post(`/${props.VERSION}/account-owner`)
+      .post(`/${props.VERSION}/create-owner`)
       .send(newOwner)
       .expect(StatusCodes.CREATED);
 
@@ -49,7 +48,7 @@ describe('#OwnerController.createAccountOwner.SuiteTests', () => {
       });
 
     const response = await request(app)
-      .post(`/${props.VERSION}/account-owner`)
+      .post(`/${props.VERSION}/create-owner`)
       .send(newOwner)
       .expect(StatusCodes.INTERNAL_SERVER_ERROR);
 
@@ -81,7 +80,7 @@ describe('#OwnerController.getAccountOwner.SuiteTests', () => {
       });
 
     const response = await request(app)
-      .get(`/${props.VERSION}/account-owner`)
+      .get(`/${props.VERSION}/recover-owner/${owner.documentNumber}`)
       .query({ documentNumber: owner.documentNumber })
       .expect(StatusCodes.OK);
 
@@ -100,7 +99,7 @@ describe('#OwnerController.getAccountOwner.SuiteTests', () => {
       });
 
     const response = await request(app)
-      .get(`/${props.VERSION}/account-owner`)
+      .get(`/${props.VERSION}/recover-owner/${owner.documentNumber}`)
       .query({ documentNumber: owner.documentNumber })
       .expect(StatusCodes.NOT_FOUND);
 

@@ -36,3 +36,9 @@ export const accountCreationSchema = Joi.object({
       '*': INVALID_OWNERS_DOCUMENT_NUMBERS.ARRAY,
     }),
 });
+
+export const accountRecoverySchema = Joi.object({
+  id: Joi.number()
+    .required()
+    .positive(),
+})

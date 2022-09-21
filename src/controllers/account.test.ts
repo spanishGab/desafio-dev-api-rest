@@ -57,7 +57,7 @@ describe('#AccountController.createAccount.SuiteTests', () => {
     expect(response.header).toHaveProperty('location');
   });
 
-  it('Should create a new account successfully', async () => {
+  it('Should throw an error while trying to create an account', async () => {
     const createNewSpy = jest
       .spyOn(AccountService.prototype, 'createNew')
       .mockImplementation(async (account: NewAccount, ownersDocumentNumbers: string[]) => {
@@ -84,3 +84,5 @@ describe('#AccountController.createAccount.SuiteTests', () => {
     expect(response.body.description).toBe(AccountCreationError.description);
   });
 })
+
+//TODO: CRIAR TESTE PARA recoverAccount

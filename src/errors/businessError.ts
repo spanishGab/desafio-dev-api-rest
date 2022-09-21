@@ -27,6 +27,12 @@ export const WrongAccountTypeError = new BusinessError(
   StatusCodes.BAD_REQUEST,
 );
 
+export const AccountNotFoundError = new BusinessError(
+  'account-not-found',
+  'Account not found',
+  StatusCodes.NOT_FOUND,
+);
+
 export const OwnerCreationError = new BusinessError(
   'owner-creation',
   'Error while trying to create the account Owner',

@@ -5,7 +5,6 @@ import props from '../common/props';
 import { ISuccessResponseBody } from '../interfaces/response';
 import { ownerRecoverySchema, ownerCreationSchema } from '../schemas/owner';
 import { OwnerService } from '../services/owner';
-import CPF from '../utils/CPF';
 import logger from '../utils/Logger';
 import { Validator } from '../validators/validator';
 
@@ -26,12 +25,12 @@ export class OwnerController {
   ): Promise<Response> {
     logger.info({
       event: 'OwnerController.recoverAccountOwner.init',
-      details: { inputData: req.query },
+      details: { inputData: req.params },
     });
 
     const { documentNumber } = await Validator.validateFieldsBySchema<{
       documentNumber: string;
-    }>(req.query, ownerRecoverySchema);
+    }>(req.params, ownerRecoverySchema);
 
     const ownerService = new OwnerService();
 

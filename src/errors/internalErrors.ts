@@ -1,7 +1,10 @@
-import { StatusCodes } from "http-status-codes";
+import { StatusCodes } from 'http-status-codes';
 import { ICustomError } from '../interfaces/customError';
 
-export class BaseInternalError extends Error implements Omit<ICustomError, 'id'> {
+export class BaseInternalError
+  extends Error
+  implements Omit<ICustomError, 'id'>
+{
   public readonly code: string = String(StatusCodes.INTERNAL_SERVER_ERROR);
   public readonly description: string;
   public readonly httpStatusCode: number = StatusCodes.INTERNAL_SERVER_ERROR;
@@ -15,6 +18,10 @@ export class BaseInternalError extends Error implements Omit<ICustomError, 'id'>
     return {
       code: this.code,
       description: this.description,
-    }
+    };
   }
 }
+
+export const AccountServiceError = new BaseInternalError(
+  'An error occurred while performing AccountService operation',
+);
