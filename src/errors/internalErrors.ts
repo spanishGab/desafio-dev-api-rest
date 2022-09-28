@@ -23,5 +23,9 @@ export class BaseInternalError
 }
 
 export const AccountServiceError = new BaseInternalError(
-  'An error occurred while performing AccountService operation',
+  'An error occurred while performing an AccountService operation',
+);
+
+export const OwnerServiceError = new BaseInternalError(
+  'An error occurred while performing an OwnerService operation',
 );

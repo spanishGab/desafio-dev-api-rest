@@ -4,6 +4,8 @@ declare global {
   namespace Express {
     export interface Request {
       id: string;
+      accountId?: number;
+      ownerDocumentNumber: string;
     }
   }
 }

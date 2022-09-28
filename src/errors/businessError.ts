@@ -51,3 +51,8 @@ export const OwnerNotFoundError = new BusinessError(
   StatusCodes.NOT_FOUND,
 );
 
+export const ForbiddenAccountAccessError = new BusinessError(
+  'forbidden-account-access',
+  'Owner has no permission to access this account',
+  StatusCodes.FORBIDDEN,
+);

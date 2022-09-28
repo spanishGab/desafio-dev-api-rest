@@ -1,4 +1,5 @@
 import { Owner } from '@prisma/client';
+import { AccountOwner } from '@prisma/client';
 import { DateTime } from 'luxon';
 
 import dbClient from '../db';
@@ -7,7 +8,7 @@ import {
   OwnerCreationError,
   OwnerNotFoundError,
 } from '../errors/businessError';
-import CPF from '../utils/CPF';
+import { OwnerServiceError } from '../errors/internalErrors';
 import { SHORT_ISO8601 } from '../utils/date';
 import logger from '../utils/Logger';
 
@@ -86,6 +87,54 @@ export class OwnerService {
       });
 
       throw OwnerNotFoundError;
+    }
+  }
+
+  public async isAccountOwnerAuthorized(
+    ownerDocumentNumber: string,
+    accountId: number,
+  ): Promise<boolean> {
+    logger.info({
+      event: 'AccountOwnerService.isAccountOwnerAuthorized',
+      details: { ownerDocumentNumber, accountId },
+    });
+
+    try {
+      const owner: Owner & { accountOwners: AccountOwner[] } =
+        await dbClient.owner.findUniqueOrThrow({
+          where: {
+            documentNumber: ownerDocumentNumber,
+          },
+          include: {
+            accountOwners: true,
+          },
+        });
+
+      if (typeof owner.accountOwners === 'undefined') {
+        logger.error({
+          event:
+            'AccountOwnerService.isAccountOwnerAuthorized.forbiddenAccountAccess',
+          details: {
+            error: 'The given ownerDocumentNumber is not realted to an account',
+            ownerDocumentNumber,
+          },
+        });
+
+        return false;
+      }
+
+      return owner.accountOwners.some(
+        (accountOwner: AccountOwner) => accountOwner.accountId === accountId,
+      );
+    } catch (error) {
+      logger.error({
+        event: 'AccountOwnerService.isAccountOwnerAuthorized.error',
+        details: {
+          error: error.message,
+        },
+      });
+
+      throw OwnerServiceError;
     }
   }
 

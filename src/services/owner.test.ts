@@ -1,5 +1,10 @@
+import { AccountOwner, Owner } from '@prisma/client';
 import { prismaMock } from '../../prismaSingleton';
-import { OwnerCreationError, OwnerNotFoundError } from '../errors/businessError';
+import {
+  OwnerCreationError,
+  OwnerNotFoundError,
+} from '../errors/businessError';
+import { OwnerServiceError } from '../errors/internalErrors';
 import { OwnerService } from './owner';
 
 const ownerRecord = {
@@ -15,6 +20,11 @@ const defaultOwnerSelect = {
   documentNumber: true,
   birthDate: true,
 };
+
+const accountOwnerRecord = {
+  accountId: 1,
+  ownerId: ownerRecord.id,
+} as AccountOwner;
 
 describe('#OwnerService.createNew.SuitTests', () => {
   it('Should create a new owner record successfully in the database', async () => {
@@ -100,9 +110,9 @@ describe('#OwnerService.findOne.SuitTests', () => {
 
     const ownerService = new OwnerService();
 
-    expect(ownerService.findOne(ownerRecord.documentNumber)).resolves.toStrictEqual(
-      ownerRecord,
-    );
+    expect(
+      ownerService.findOne(ownerRecord.documentNumber),
+    ).resolves.toStrictEqual(ownerRecord);
   });
 
   test.each([
@@ -112,15 +122,121 @@ describe('#OwnerService.findOne.SuitTests', () => {
       },
       expectedResult: OwnerNotFoundError,
     },
+  ])('findOne() throwing errors', async ({ findOwnerMock, expectedResult }) => {
+    prismaMock.owner.findUniqueOrThrow.mockImplementationOnce(findOwnerMock);
+
+    const ownerService = new OwnerService();
+
+    try {
+      await ownerService.findOne(ownerRecord.documentNumber);
+      throw new Error('Test faild! Should not reach here');
+    } catch (error) {
+      expect(error).toStrictEqual(expectedResult);
+    }
+  });
+});
+
+describe('#OwnerService.isAccountOwnerAuthorized.SuitTests', () => {
+  it('Should return true if the given account belongs to the given owner', async () => {
+    prismaMock.owner.findUniqueOrThrow.calledWith({
+      where: {
+        documentNumber: ownerRecord.documentNumber,
+      },
+      include: {
+        accountOwners: true,
+      },
+    });
+
+    prismaMock.owner.findUniqueOrThrow.mockResolvedValue({
+      ...ownerRecord,
+      accountOwners: [accountOwnerRecord],
+    } as Owner & { accountOwners: AccountOwner[] });
+
+    const ownerService = new OwnerService();
+
+    expect(
+      ownerService.isAccountOwnerAuthorized(
+        ownerRecord.documentNumber,
+        accountOwnerRecord.accountId,
+      ),
+    ).resolves.toBe(true);
+  });
+
+  test.each([
+    {
+      calledWith: {
+        where: {
+          documentNumber: ownerRecord.documentNumber,
+        },
+        include: {
+          accountOwners: true,
+        },
+      },
+      mockResolvedValue: {
+        ...ownerRecord,
+        accountOwners: [
+          {
+            ownerId: 1,
+            accountId: 2,
+          },
+          {
+            ownerId: 1,
+            accountId: 3,
+          },
+        ],
+      } as Owner & { accountOwners: AccountOwner[] },
+    },
+    {
+      calledWith: {
+        where: {
+          documentNumber: ownerRecord.documentNumber,
+        },
+        include: {
+          accountOwners: true,
+        },
+      },
+      mockResolvedValue: ownerRecord,
+    },
   ])(
-    'findOne() throwing errors',
-    async ({ findOwnerMock, expectedResult }) => {
-      prismaMock.owner.findUniqueOrThrow.mockImplementationOnce(findOwnerMock);
+    'isAccountOwnerAuthorized() returning false',
+    ({ calledWith, mockResolvedValue }) => {
+      prismaMock.owner.findUniqueOrThrow.calledWith(calledWith);
+
+      prismaMock.owner.findUniqueOrThrow.mockResolvedValue(mockResolvedValue);
+
+      const ownerService = new OwnerService();
+
+      expect(
+        ownerService.isAccountOwnerAuthorized(
+          ownerRecord.documentNumber,
+          accountOwnerRecord.accountId,
+        ),
+      ).resolves.toBe(false);
+    },
+  );
+
+  test.each([
+    {
+      isAccountOwnerAuthorizedMock: () => {
+        throw new Error('Could not find any register on the database');
+      },
+      accountIdMock: 2,
+      expectedResult: OwnerServiceError,
+    },
+  ])(
+    'isAccountOwnerAuthorizedMock() throwing errors',
+    async ({ isAccountOwnerAuthorizedMock, accountIdMock, expectedResult }) => {
+      prismaMock.owner.findUniqueOrThrow.mockImplementationOnce(
+        isAccountOwnerAuthorizedMock,
+      );
 
       const ownerService = new OwnerService();
 
       try {
-        await ownerService.findOne(ownerRecord.documentNumber);
+        await ownerService.isAccountOwnerAuthorized(
+          ownerRecord.documentNumber,
+          accountIdMock,
+        );
         throw new Error('Test faild! Should not reach here');
       } catch (error) {
         expect(error).toStrictEqual(expectedResult);

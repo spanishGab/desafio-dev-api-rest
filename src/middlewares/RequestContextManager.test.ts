@@ -3,8 +3,6 @@ import {v4 as uuidV4} from 'uuid';
 
 import RequestContextManager from './RequestContextManager';
 
-jest.setTimeout(50000);
-
 describe('#RequestContextManager.createContext.SuiteTests', () => {
   it('Should create a request context successfully', async () => {
     const request = httpMocks.createRequest();

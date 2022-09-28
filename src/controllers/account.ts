@@ -7,7 +7,12 @@ import {
   accountCreationSchema,
   accountRecoverySchema,
 } from '../schemas/account';
-import { AccountService, AccountType, IAccount, NewAccount } from '../services/account';
+import {
+  AccountService,
+  AccountType,
+  IAccount,
+  NewAccount,
+} from '../services/account';
 import logger from '../utils/Logger';
 import { Validator } from '../validators/validator';
 
@@ -62,25 +67,22 @@ export class AccountController {
   ): Promise<Response> {
     logger.info({
       event: 'AccountController.recoverAccount',
-      details: { inputData: req.params },
+      details: {
+        accountId: req.accountId,
+        ownerDocumentNumber: req.ownerDocumentNumber,
+       },
     });
-
-    const { id } = await Validator.validateFieldsBySchema<{ id: number }>(
-      req.params,
-      accountRecoverySchema,
-    );
 
     const accountService = new AccountService();
 
-    const accountData: IAccount = await accountService.findOne(id);
+    const accountData: IAccount = await accountService.findOne(req.accountId!);
 
     return res.status(StatusCodes.OK).json({
       uuid: req.id,
       message: ReasonPhrases.OK,
       content: {
-        ...accountData
-      }
-    })
-
+        ...accountData,
+      },
+    });
   }
 }

@@ -41,4 +41,4 @@ export const accountRecoverySchema = Joi.object({
   id: Joi.number()
     .required()
     .positive(),
-})
+});
