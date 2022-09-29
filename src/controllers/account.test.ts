@@ -3,7 +3,10 @@ import { DateTime } from 'luxon';
 import request from 'supertest';
 import app from '../app';
 import props from '../common/props';
-import { AccountCreationError, AccountNotFoundError } from '../errors/businessError';
+import {
+  AccountCreationError,
+  AccountNotFoundError,
+} from '../errors/businessError';
 import { OwnershipGateway } from '../middlewares/ownershipGateway';
 import {
   AccountService,
@@ -34,7 +37,7 @@ const newAccount: IAccountRequestBody = {
   ownersDocumentNumbers: ['83065825007'],
 };
 
-describe('#AccountController.createAccount.SuiteTests', () => {
+describe('#AccountController.create.SuiteTests', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -110,60 +113,70 @@ describe('#AccountController.createAccount.SuiteTests', () => {
   });
 });
 
-describe('#AccountController.recoverAccount.SuiteTests', () => {
+describe('#AccountController.recover.SuiteTests', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   it("Should recover an account's information successfully", async () => {
-    const recoverAccountSpy = jest
+    const findOneSpy = jest
       .spyOn(AccountService.prototype, 'findOne')
       .mockImplementationOnce(async (id: number) => {
         return account;
-      });
-
-    const response = await request(app)
-      .get(`/${props.VERSION}/${account.id}?documentNumber=19777965087`)
-      .expect(StatusCodes.OK)
-
-    expect(recoverAccountSpy).toHaveBeenCalledTimes(1);
-    expect(recoverAccountSpy).toHaveBeenCalledWith(account.id);
-
-    expect(response.body.message).toBe(ReasonPhrases.OK);
-    expect(response.body.content).toStrictEqual({
-      ...account,
-      createdAt: account.createdAt.toString(),
-      updatedAt: account.updatedAt.toString()
-    });
-  });
-
-  it('Should return a Not Found error when no account information is found', async () => {
-    const recoverAccountSpy = jest
-      .spyOn(AccountService.prototype, 'findOne')
-      .mockImplementationOnce(async (id: number) => {
-        throw AccountNotFoundError;
       });
 
     const isAccountOwnerAuthorizedSpy = jest
       .spyOn(OwnerService.prototype, 'isAccountOwnerAuthorized')
       .mockResolvedValue(true);
 
-    const wrongAccountId = 1857400;
     const ownerDocumentNumber = '19777965087';
 
     const response = await request(app)
-      .get(`/${props.VERSION}/${wrongAccountId}?documentNumber=${ownerDocumentNumber}`)
-      .expect(StatusCodes.NOT_FOUND)
+      .get(
+        `/${props.VERSION}/${account.id}?documentNumber=${ownerDocumentNumber}`,
+      )
+      .expect(StatusCodes.OK);
 
-    expect(recoverAccountSpy).toHaveBeenCalledTimes(1);
-    expect(recoverAccountSpy).toHaveBeenCalledWith(wrongAccountId);
+    expect(findOneSpy).toHaveBeenCalledTimes(1);
+    expect(findOneSpy).toHaveBeenCalledWith(account.id);
 
     expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledTimes(1);
     expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledWith(
       ownerDocumentNumber,
-      String(wrongAccountId),
+      account.id,
     );
 
-    expect(response.body.description).toBe('Account not found');
+    expect(response.body.message).toBe(ReasonPhrases.OK);
+    expect(response.body.content).toStrictEqual({
+      ...account,
+      createdAt: account.createdAt.toString(),
+      updatedAt: account.updatedAt.toString(),
+    });
+  });
+});
+
+describe('#AccountController.deposit.SuiteTests', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('Should deposit money on the account', async () => {
+    const alterBalanceSpy = jest
+      .spyOn(AccountService.prototype, 'alterBalance')
+      .mockResolvedValueOnce({
+        ...account,
+        balance: account.balance + 10,
+        updatedAt: DateTime.now(),
+      });
+
+    const response = await request(app)
+      .put(`/${props.VERSION}/deposit/${account.id}?documentNumber=19777965087`)
+      .send({ amount: 10 })
+      .expect(StatusCodes.OK);
+
+    expect(alterBalanceSpy).toHaveBeenCalledTimes(1);
+    expect(alterBalanceSpy).toHaveBeenCalledWith(account.id, 10, 'CR');
+
+    expect(response.body.message).toBe(ReasonPhrases.OK);
   });
 });

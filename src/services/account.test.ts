@@ -4,10 +4,12 @@ import { prismaMock } from '../../prismaSingleton';
 import {
   AccountCreationError,
   AccountNotFoundError,
+  InsuficientAccountBalanceError,
   WrongAccountTypeError,
 } from '../errors/businessError';
 import { AccountServiceError } from '../errors/internalErrors';
-import { AccountService, AccountType } from './account';
+import { DateUtils } from '../utils/date';
+import { AccountService, AccountType, TransactionType } from './account';
 
 const ownerRecord = {
   id: 1,
@@ -41,10 +43,9 @@ const defaultAccountSelect = {
   type: true,
   createdAt: true,
   updatedAt: true,
-}
+};
 
 describe('#AccountService.createNew.SuitTests', () => {
-
   it('Should create a new account record successfully in the database', async () => {
     prismaMock.owner.findMany.calledWith({
       where: {
@@ -130,7 +131,10 @@ describe('#AccountService.createNew.SuitTests', () => {
         ...accountData,
         type: AccountType.conjunta,
       },
-      mockedOwnersDocumentNumbers: [ownerRecord.documentNumber, ownerRecord.documentNumber],
+      mockedOwnersDocumentNumbers: [
+        ownerRecord.documentNumber,
+        ownerRecord.documentNumber,
+      ],
       expectedResult: WrongAccountTypeError,
     },
     {
@@ -193,17 +197,15 @@ describe('#AccountServce.findOne.SuiteTests', () => {
 
     const accountService = new AccountService();
 
-    expect(accountService.findOne(accountRecord.id)).resolves.toStrictEqual(
-      {
-        id: accountRecord.id,
-        balance: Number(accountRecord.balance),
-        dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
-        isActive: accountRecord.isActive,
-        type: accountRecord.type,
-        createdAt: DateTime.fromJSDate(accountRecord.createdAt),
-        updatedAt: DateTime.fromJSDate(accountRecord.updatedAt),
-      },
-    );
+    expect(accountService.findOne(accountRecord.id)).resolves.toStrictEqual({
+      id: accountRecord.id,
+      balance: Number(accountRecord.balance),
+      dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
+      isActive: accountRecord.isActive,
+      type: accountRecord.type,
+      createdAt: DateTime.fromJSDate(accountRecord.createdAt),
+      updatedAt: DateTime.fromJSDate(accountRecord.updatedAt),
+    });
   });
 
   test.each([
@@ -215,14 +217,18 @@ describe('#AccountServce.findOne.SuiteTests', () => {
     },
     {
       findAccountMock: () => {
-        throw new Prisma.NotFoundError('Could not find any register on the database');
+        throw new Prisma.NotFoundError(
+          'Could not find any register on the database',
+        );
       },
       expectedResult: AccountNotFoundError,
     },
   ])(
     'findOne() throwing errors',
     async ({ findAccountMock, expectedResult }) => {
-      prismaMock.account.findUniqueOrThrow.mockImplementationOnce(findAccountMock);
+      prismaMock.account.findUniqueOrThrow.mockImplementationOnce(
+        findAccountMock,
+      );
 
       const accountService = new AccountService();
 
@@ -231,6 +237,151 @@ describe('#AccountServce.findOne.SuiteTests', () => {
         throw new Error('Test faild! Should not reach here');
       } catch (error) {
         expect(error).toStrictEqual(expectedResult);
+      }
+    },
+  );
+});
+
+describe('#AccountServce.alterBalance.SuiteTests', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test.each([
+    {
+      accountId: accountRecord.id,
+      amount: 10,
+      finalBalance: Number(accountRecord.balance) + 10,
+      operation: TransactionType.credit,
+      expectedResult: {
+        ...accountRecord,
+        balance: 510,
+        dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
+        type: accountRecord.type as AccountType,
+        createdAt: DateTime.fromJSDate(accountRecord.createdAt),
+        updatedAt: DateTime.now(),
+      },
+    },
+    {
+      accountId: accountRecord.id,
+      amount: 10,
+      finalBalance: Number(accountRecord.balance) - 10,
+      operation: TransactionType.debit,
+      expectedResult: {
+        ...accountRecord,
+        balance: 490,
+        dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
+        type: accountRecord.type as AccountType,
+        createdAt: DateTime.fromJSDate(accountRecord.createdAt),
+        updatedAt: DateTime.now(),
+      },
+    },
+  ])(
+    'Should update the account balance successfully according to the given operation type',
+    async ({ accountId, amount, finalBalance, operation, expectedResult }) => {
+      const findOneSpy = jest
+        .spyOn(AccountService.prototype, 'findOne')
+        .mockResolvedValue({
+          ...accountRecord,
+          balance: Number(accountRecord.balance),
+          dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
+          type: accountRecord.type as AccountType,
+          createdAt: DateTime.fromJSDate(accountRecord.createdAt),
+          updatedAt: DateTime.fromJSDate(accountRecord.updatedAt),
+        });
+
+      prismaMock.account.update.calledWith({
+        where: {
+          id: accountId,
+        },
+        data: {
+          balance: finalBalance,
+          updatedAt: DateUtils.saoPauloNow().toJSDate(),
+        },
+      });
+
+      prismaMock.account.update.mockResolvedValueOnce({
+        ...accountRecord,
+        balance: new Prisma.Decimal(finalBalance),
+        updatedAt: expectedResult.updatedAt.toJSDate(),
+      });
+
+      const accountService = new AccountService();
+
+      const result = await accountService.alterBalance(
+        accountId,
+        amount,
+        operation,
+      );
+
+      expect(findOneSpy).toHaveBeenCalledTimes(1);
+      expect(findOneSpy).toHaveBeenCalledWith(accountId);
+
+      expect(result).toStrictEqual(expectedResult);
+    },
+  );
+
+  test.each([
+    {
+      accountId: accountRecord.id,
+      amount: 501,
+      finalBalance: Number(accountRecord.balance) + 501,
+      operation: TransactionType.debit,
+      updateMock: undefined,
+      expectedResult: InsuficientAccountBalanceError,
+    },
+    {
+      accountId: accountRecord.id,
+      amount: 10,
+      finalBalance: Number(accountRecord.balance) - 10,
+      operation: TransactionType.debit,
+      updateMock: () => {
+        throw new Error('Error while updating resource');
+      },
+      expectedResult: AccountServiceError,
+    },
+  ])(
+    'alterBalance() throwing errors',
+    async ({ accountId, amount, finalBalance, operation, updateMock, expectedResult }) => {
+      const findOneSpy = jest
+        .spyOn(AccountService.prototype, 'findOne')
+        .mockResolvedValue({
+          ...accountRecord,
+          balance: Number(accountRecord.balance),
+          dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
+          type: accountRecord.type as AccountType,
+          createdAt: DateTime.fromJSDate(accountRecord.createdAt),
+          updatedAt: DateTime.fromJSDate(accountRecord.updatedAt),
+        });
+
+      prismaMock.account.update.calledWith({
+        where: {
+          id: accountId,
+        },
+        data: {
+          balance: finalBalance,
+          updatedAt: DateUtils.saoPauloNow().toJSDate(),
+        },
+      });
+
+      if (updateMock) {
+        prismaMock.account.update.mockImplementation(updateMock);
+      }
+
+      const accountService = new AccountService();
+
+      try {
+        await accountService.alterBalance(
+          accountId,
+          amount,
+          operation,
+        );
+        throw new Error('Test Faild. Should not reach here!');
+      } catch (error) {
+        expect(findOneSpy).toHaveBeenCalledTimes(1);
+        expect(findOneSpy).toHaveBeenCalledWith(accountId);
+
+        expect(error).toBe(expectedResult);
       }
     },
   );

@@ -1,4 +1,4 @@
-import { AccountOwner, Owner } from '@prisma/client';
+import { AccountOwner, Owner, Prisma } from '@prisma/client';
 import { prismaMock } from '../../prismaSingleton';
 import {
   OwnerCreationError,
@@ -217,17 +217,24 @@ describe('#OwnerService.isAccountOwnerAuthorized.SuitTests', () => {
 
   test.each([
     {
-      isAccountOwnerAuthorizedMock: () => {
-        throw new Error('Could not find any register on the database');
+      findUniqueOrThrowMock: () => {
+        throw new Prisma.NotFoundError('Could not find any register on the database');
+      },
+      accountIdMock: 2,
+      expectedResult: OwnerNotFoundError,
+    },
+    {
+      findUniqueOrThrowMock: () => {
+        throw new Error('Error while performing query on the database');
       },
       accountIdMock: 2,
       expectedResult: OwnerServiceError,
     },
   ])(
-    'isAccountOwnerAuthorizedMock() throwing errors',
-    async ({ isAccountOwnerAuthorizedMock, accountIdMock, expectedResult }) => {
+    'isAccountOwnerAuthorized() throwing errors',
+    async ({ findUniqueOrThrowMock, accountIdMock, expectedResult }) => {
       prismaMock.owner.findUniqueOrThrow.mockImplementationOnce(
-        isAccountOwnerAuthorizedMock,
+        findUniqueOrThrowMock,
       );
 
       const ownerService = new OwnerService();

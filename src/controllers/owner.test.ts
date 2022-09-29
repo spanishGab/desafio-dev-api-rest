@@ -7,7 +7,7 @@ import { NewOwner, OwnerService } from '../services/owner';
 import { OwnerCreationError, OwnerNotFoundError } from '../errors/businessError';
 import { IOwnerRequestBody } from './owner';
 
-describe('#OwnerController.createAccountOwner.SuiteTests', () => {
+describe('#OwnerController.create.SuiteTests', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -60,7 +60,7 @@ describe('#OwnerController.createAccountOwner.SuiteTests', () => {
   });
 });
 
-describe('#OwnerController.getAccountOwner.SuiteTests', () => {
+describe('#OwnerController.recover.SuiteTests', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });

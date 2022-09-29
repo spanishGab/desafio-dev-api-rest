@@ -19,7 +19,7 @@ export interface IOwnerRequestBody {
 }
 
 export class OwnerController {
-  static async recoverAccountOwner(
+  static async recover(
     req: Request,
     res: Response<ISuccessResponseBody<IRecoverOwnerResponse>>,
   ): Promise<Response> {
@@ -45,7 +45,7 @@ export class OwnerController {
     });
   }
 
-  static async createAccountOwner(
+  static async create(
     req: Request,
     res: Response<ISuccessResponseBody>,
   ): Promise<Response> {

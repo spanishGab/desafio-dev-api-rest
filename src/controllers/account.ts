@@ -5,6 +5,7 @@ import { ISuccessResponseBody } from '../interfaces/response';
 import RequestContextManager from '../middlewares/RequestContextManager';
 import {
   accountCreationSchema,
+  accountOperationSchema,
   accountRecoverySchema,
 } from '../schemas/account';
 import {
@@ -12,6 +13,7 @@ import {
   AccountType,
   IAccount,
   NewAccount,
+  TransactionType,
 } from '../services/account';
 import logger from '../utils/Logger';
 import { Validator } from '../validators/validator';
@@ -26,7 +28,7 @@ export interface IAccountRequestBody {
 }
 
 export class AccountController {
-  static async createAccount(
+  static async create(
     req: Request,
     res: Response<ISuccessResponseBody>,
   ): Promise<Response> {
@@ -61,7 +63,7 @@ export class AccountController {
       });
   }
 
-  static async recoverAccount(
+  static async recover(
     req: Request,
     res: Response<ISuccessResponseBody>,
   ): Promise<Response> {
@@ -70,7 +72,7 @@ export class AccountController {
       details: {
         accountId: req.accountId,
         ownerDocumentNumber: req.ownerDocumentNumber,
-       },
+      },
     });
 
     const accountService = new AccountService();
@@ -83,6 +85,33 @@ export class AccountController {
       content: {
         ...accountData,
       },
+    });
+  }
+
+  static async deposit(
+    req: Request,
+    res: Response<ISuccessResponseBody>,
+  ): Promise<Response> {
+    logger.info({
+      event: 'AccountController.deposit',
+      details: {
+        accountId: req.accountId,
+        ownerDocumentNumber: req.ownerDocumentNumber,
+        inputData: req.body,
+      },
+    });
+
+    const { amount } = await Validator.validateFieldsBySchema<{
+      amount: number;
+    }>(req.body, accountOperationSchema);
+
+    const accountService = new AccountService();
+
+    accountService.alterBalance(req.accountId!, amount, TransactionType.credit);
+
+    return res.status(StatusCodes.OK).json({
+      uuid: req.id,
+      message: ReasonPhrases.OK,
     });
   }
 }

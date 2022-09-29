@@ -47,7 +47,7 @@ export const OwnerAlreadyExistsError = new BusinessError(
 
 export const OwnerNotFoundError = new BusinessError(
   'owner-not-found',
-  'Owner not found',
+  'Account owner not found',
   StatusCodes.NOT_FOUND,
 );
 
@@ -55,4 +55,10 @@ export const ForbiddenAccountAccessError = new BusinessError(
   'forbidden-account-access',
   'Owner has no permission to access this account',
   StatusCodes.FORBIDDEN,
+);
+
+export const InsuficientAccountBalanceError = new BusinessError(
+  'insucficient-account-balance',
+  'Account has no balance to complete the transaction',
+  StatusCodes.CONFLICT,
 );

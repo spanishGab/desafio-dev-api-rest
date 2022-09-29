@@ -1,4 +1,4 @@
-import { Owner } from '@prisma/client';
+import { Owner, Prisma } from '@prisma/client';
 import { AccountOwner } from '@prisma/client';
 import { DateTime } from 'luxon';
 
@@ -95,7 +95,7 @@ export class OwnerService {
     accountId: number,
   ): Promise<boolean> {
     logger.info({
-      event: 'AccountOwnerService.isAccountOwnerAuthorized',
+      event: 'OwnerService.isAccountOwnerAuthorized',
       details: { ownerDocumentNumber, accountId },
     });
 
@@ -113,7 +113,7 @@ export class OwnerService {
       if (typeof owner.accountOwners === 'undefined') {
         logger.error({
           event:
-            'AccountOwnerService.isAccountOwnerAuthorized.forbiddenAccountAccess',
+            'OwnerService.isAccountOwnerAuthorized.forbiddenAccountAccess',
           details: {
             error: 'The given ownerDocumentNumber is not realted to an account',
             ownerDocumentNumber,
@@ -127,8 +127,20 @@ export class OwnerService {
         (accountOwner: AccountOwner) => accountOwner.accountId === accountId,
       );
     } catch (error) {
+      if (error instanceof Prisma.NotFoundError) {
+        logger.error({
+          event: 'OwnerService.isAccountOwnerAuthorized.ownerNotFound.error',
+          details: {
+            error: error.message,
+            ownerDocumentNumber,
+          },
+        });
+
+        throw OwnerNotFoundError;
+      }
+
       logger.error({
-        event: 'AccountOwnerService.isAccountOwnerAuthorized.error',
+        event: 'OwnerService.isAccountOwnerAuthorized.error',
         details: {
           error: error.message,
         },

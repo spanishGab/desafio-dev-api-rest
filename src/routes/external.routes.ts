@@ -25,16 +25,16 @@ router.get(
 );
 
 // Account owner functionalities
-router.get('/recover-owner/:documentNumber', OwnerController.recoverAccountOwner);
+router.get('/recover-owner/:documentNumber', OwnerController.recover);
 
-router.post('/create-owner', OwnerController.createAccountOwner);
+router.post('/create-owner', OwnerController.create);
 
 // Account operation functionalities
-router.post('/', AccountController.createAccount);
+router.post('/', AccountController.create);
 
-router.get('/:id', OwnershipGateway.verifyAccountOwnership, AccountController.recoverAccount);
+router.get('/:id', OwnershipGateway.verifyAccountOwnership, AccountController.recover);
 
-router.put('/deposit/:id');
+router.put('/deposit/:id', OwnershipGateway.verifyAccountOwnership, AccountController.deposit);
 
 router.post('/withdrawal/:id');
 

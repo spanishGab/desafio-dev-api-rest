@@ -5,13 +5,20 @@ import { DateTime } from 'luxon';
 import {
   AccountCreationError,
   AccountNotFoundError,
+  InsuficientAccountBalanceError,
   WrongAccountTypeError,
 } from '../errors/businessError';
 import dbClient from '../db';
 import logger from '../utils/Logger';
 import { AccountServiceError } from '../errors/internalErrors';
+import { DateUtils } from '../utils/date';
 
-export enum AccountType {
+export const enum TransactionType {
+  credit = 'CR',
+  debit = 'DB',
+}
+
+export const enum AccountType {
   corrente = 'corrente',
   poupanca = 'poupanca',
   salario = 'salario',
@@ -124,7 +131,7 @@ export class AccountService {
   }
 
   public async findOne(accountId: number): Promise<IAccount> {
-    logger.info({event: 'AccountService.findOne', details: { accountId }});
+    logger.info({ event: 'AccountService.findOne', details: { accountId } });
 
     try {
       const accountInfo: IAccount = this.fromDBRecord(
@@ -132,7 +139,7 @@ export class AccountService {
           where: {
             id: accountId,
           },
-        })
+        }),
       );
 
       return accountInfo;
@@ -153,6 +160,57 @@ export class AccountService {
         event: 'AccountService.findOne.error',
         details: {
           error: error.message,
+        },
+      });
+
+      throw AccountServiceError;
+    }
+  }
+
+  public async alterBalance(
+    accountId: number,
+    amount: number,
+    operation: TransactionType,
+  ): Promise<IAccount> {
+    logger.info({
+      event: `AccountService.alterBalance.${operation}`,
+      details: { accountId, amount },
+    });
+
+    const { balance } = await this.findOne(accountId);
+
+    const finalBalance =
+      operation === TransactionType.debit ? balance - amount : balance + amount;
+
+    if (finalBalance < 0) {
+      logger.error({
+        event: 'AccountService.alterBalance.debit.error',
+        details: {
+          error: 'The given amount treapasses the account balance',
+          finalBalance,
+        },
+      });
+
+      throw InsuficientAccountBalanceError;
+    }
+
+    try {
+      return this.fromDBRecord(
+        await dbClient.account.update({
+          where: {
+            id: accountId,
+          },
+          data: {
+            balance: finalBalance,
+            updatedAt: DateUtils.saoPauloNow().toJSDate(),
+          },
+        }),
+      );
+    } catch (error) {
+      logger.error({
+        event: 'AccountService.alterBalance.error',
+        details: {
+          error: error.message || error,
         },
       });
 

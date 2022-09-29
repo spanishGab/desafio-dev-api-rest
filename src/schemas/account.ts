@@ -5,6 +5,8 @@ import {
   INVALID_ACCOUNT_TYPE,
   INVALID_BALANCE,
   INVALID_OWNERS_DOCUMENT_NUMBERS,
+  INVALID_ACCOUNT_ID,
+  INVALID_OPERATION_AMOUNT,
 } from './errorMessages';
 import { cpfField } from './fields';
 
@@ -40,5 +42,13 @@ export const accountCreationSchema = Joi.object({
 export const accountRecoverySchema = Joi.object({
   id: Joi.number()
     .required()
-    .positive(),
+    .positive()
+    .messages({ '*': INVALID_ACCOUNT_ID }),
 });
+
+export const accountOperationSchema = Joi.object({
+  amount: Joi.number()
+    .required()
+    .positive()
+    .messages({ '*': INVALID_OPERATION_AMOUNT }),
+})
