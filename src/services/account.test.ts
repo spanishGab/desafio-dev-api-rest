@@ -4,6 +4,7 @@ import { prismaMock } from '../../prismaSingleton';
 import {
   AccountCreationError,
   AccountNotFoundError,
+  BlockedAccountError,
   InsuficientAccountBalanceError,
   WrongAccountTypeError,
 } from '../errors/businessError';
@@ -384,10 +385,67 @@ describe('#AccountServce.alterBalance.SuiteTests', () => {
         expect(findOneSpy).toHaveBeenCalledTimes(1);
         expect(findOneSpy).toHaveBeenCalledWith(accountId);
 
-        expect(error).toBe(expectedResult);
+        expect(error).toStrictEqual(expectedResult);
       }
     },
   );
+});
+
+describe('#AccountServce.deactivate.SuiteTests', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('Should block an account successully', async () => {
+    prismaMock.account.update.calledWith({
+      where: {
+        id: accountRecord.id,
+      },
+      data: {
+        isActive: false,
+      },
+    });
+
+    prismaMock.account.update.mockResolvedValueOnce({
+      ...accountRecord,
+      isActive: false,
+    });
+
+    const accountService = new AccountService();
+
+    expect(accountService.deactivate(accountRecord.id)).resolves.toStrictEqual({
+      id: 1,
+      balance: Number(accountRecord.balance),
+      dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
+      isActive: false,
+      type: accountRecord.type,
+      createdAt: DateTime.fromJSDate(accountRecord.createdAt),
+      updatedAt: DateTime.fromJSDate(accountRecord.updatedAt),
+    });
+  });
+
+  it('Should throw an error while trying to block account', async () => {
+    prismaMock.account.update.calledWith({
+      where: {
+        id: accountRecord.id,
+      },
+      data: {
+        isActive: false,
+      },
+    });
+
+    prismaMock.account.update.mockImplementationOnce(() => {
+      throw new Error('Error while trying to update account');
+    });
+
+    const accountService = new AccountService();
+
+    try {
+      await accountService.deactivate(accountRecord.id);
+    } catch (error) {
+      expect(error).toStrictEqual(AccountServiceError);
+    }
+  });
 });
 
 describe('#AccountServce.isBlocked.SuiteTests', () => {

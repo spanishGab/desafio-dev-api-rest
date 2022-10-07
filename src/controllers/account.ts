@@ -68,7 +68,7 @@ export class AccountController {
     res: Response<ISuccessResponseBody>,
   ): Promise<Response> {
     logger.info({
-      event: 'AccountController.recoverAccount',
+      event: 'AccountController.recover.init',
       details: {
         accountId: req.accountId,
         ownerDocumentNumber: req.ownerDocumentNumber,
@@ -93,7 +93,7 @@ export class AccountController {
     res: Response<ISuccessResponseBody>,
   ): Promise<Response> {
     logger.info({
-      event: 'AccountController.deposit',
+      event: 'AccountController.deposit.init',
       details: {
         accountId: req.accountId,
         ownerDocumentNumber: req.ownerDocumentNumber,
@@ -107,7 +107,7 @@ export class AccountController {
 
     const accountService = new AccountService();
 
-    accountService.alterBalance(req.accountId!, amount, TransactionType.credit);
+    await accountService.alterBalance(req.accountId!, amount, TransactionType.credit);
 
     return res.status(StatusCodes.OK).json({
       uuid: req.id,
@@ -120,7 +120,7 @@ export class AccountController {
     res: Response<ISuccessResponseBody>,
   ): Promise<Response> {
     logger.info({
-      event: 'AccountController.withdrawal',
+      event: 'AccountController.withdrawal.init',
       details: {
         accountId: req.accountId,
         ownerDocumentNumber: req.ownerDocumentNumber,
@@ -134,7 +134,29 @@ export class AccountController {
 
     const accountService = new AccountService();
 
-    accountService.alterBalance(req.accountId!, amount, TransactionType.debit);
+    await accountService.alterBalance(req.accountId!, amount, TransactionType.debit);
+
+    return res.status(StatusCodes.OK).json({
+      uuid: req.id,
+      message: ReasonPhrases.OK,
+    });
+  }
+
+  static async block(
+    req: Request,
+    res: Response<ISuccessResponseBody>,
+  ): Promise<Response> {
+    logger.info({
+      event: 'AccountController.block.init',
+      details: {
+        accountId: req.accountId,
+        ownerDocumentNumber: req.ownerDocumentNumber,
+      },
+    });
+
+    const accountService = new AccountService();
+
+    await accountService.deactivate(req.accountId!);
 
     return res.status(StatusCodes.OK).json({
       uuid: req.id,

@@ -38,7 +38,7 @@ router.put('/deposit/:id', AuthGateway.main, AccountController.deposit);
 
 router.put('/withdrawal/:id', AuthGateway.main, AccountController.withdrawal);
 
-router.put('/block-account/:id');
+router.put('/block/:id', AuthGateway.main, AccountController.block);
 
 router.get('/receipt/:id');
 

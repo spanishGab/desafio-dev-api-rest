@@ -83,7 +83,7 @@ export class AuthGateway {
     if (await accountService.isBlocked(accountId)) {
       logger.warn({
         event: 'AuthGateway.checkAccountBlock.blocked',
-        details: 'Account has a blocked status',
+        details: 'Account has is blocked',
       });
 
       throw BlockedAccountError;

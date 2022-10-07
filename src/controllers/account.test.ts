@@ -117,13 +117,9 @@ describe('#AccountController.recover.SuiteTests', () => {
   it("Should recover an account's information successfully", async () => {
     const findOneSpy = jest
       .spyOn(AccountService.prototype, 'findOne')
-      .mockImplementationOnce(async (id: number) => {
+      .mockImplementation(async (id: number) => {
         return account;
       });
-
-    const isAccountOwnerAuthorizedSpy = jest
-      .spyOn(OwnerService.prototype, 'isAccountOwnerAuthorized')
-      .mockResolvedValue(true);
 
     const ownerDocumentNumber = '19777965087';
 
@@ -133,14 +129,8 @@ describe('#AccountController.recover.SuiteTests', () => {
       )
       .expect(StatusCodes.OK);
 
-    expect(findOneSpy).toHaveBeenCalledTimes(1);
+    expect(findOneSpy).toHaveBeenCalledTimes(2); // here the findOne was already used once by the AuthGateway
     expect(findOneSpy).toHaveBeenCalledWith(account.id);
-
-    expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledTimes(1);
-    expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledWith(
-      ownerDocumentNumber,
-      account.id,
-    );
 
     expect(response.body.message).toBe(ReasonPhrases.OK);
     expect(response.body.content).toStrictEqual({
@@ -156,7 +146,7 @@ describe('#AccountController.deposit.SuiteTests', () => {
     jest.restoreAllMocks();
   });
 
-  it('Should deposit money on the account', async () => {
+  it('Should deposit money on an account', async () => {
     const alterBalanceSpy = jest
       .spyOn(AccountService.prototype, 'alterBalance')
       .mockResolvedValueOnce({
@@ -182,7 +172,7 @@ describe('#AccountController.withdrawal.SuiteTests', () => {
     jest.restoreAllMocks();
   });
 
-  it('Should withdrawal money from the account', async () => {
+  it('Should withdrawal money from an account', async () => {
     const alterBalanceSpy = jest
       .spyOn(AccountService.prototype, 'alterBalance')
       .mockResolvedValueOnce({
@@ -200,6 +190,30 @@ describe('#AccountController.withdrawal.SuiteTests', () => {
 
     expect(alterBalanceSpy).toHaveBeenCalledTimes(1);
     expect(alterBalanceSpy).toHaveBeenCalledWith(account.id, 10, 'DB');
+
+    expect(response.body.message).toBe(ReasonPhrases.OK);
+  });
+});
+
+describe('#AccountController.block.SuiteTests', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('Should block an account', async () => {
+    const blockSpy = jest
+      .spyOn(AccountService.prototype, 'deactivate')
+      .mockResolvedValueOnce({
+        ...account,
+        isActive: false,
+      });
+
+    const response = await request(app)
+      .put(`/${props.VERSION}/block/${account.id}?documentNumber=19777965087`)
+      .expect(StatusCodes.OK);
+
+    expect(blockSpy).toHaveBeenCalledTimes(1);
+    expect(blockSpy).toHaveBeenCalledWith(account.id);
 
     expect(response.body.message).toBe(ReasonPhrases.OK);
   });

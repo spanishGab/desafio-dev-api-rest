@@ -210,7 +210,36 @@ export class AccountService {
       logger.error({
         event: 'AccountService.alterBalance.error',
         details: {
-          error: error.message || error,
+          error: error.message,
+        },
+      });
+
+      throw AccountServiceError;
+    }
+  }
+
+  public async deactivate(accountId: number): Promise<IAccount> {
+    logger.info({
+      event: 'AccountService.deactivate',
+      details: { accountId },
+    });
+
+    try {
+      return this.fromDBRecord(
+        await dbClient.account.update({
+          where: {
+            id: accountId,
+          },
+          data: {
+            isActive: false,
+          },
+        }),
+      );
+    } catch (error) {
+      logger.error({
+        event: 'AccountService.deactivate.error',
+        details: {
+          error: error.message,
         },
       });
 
