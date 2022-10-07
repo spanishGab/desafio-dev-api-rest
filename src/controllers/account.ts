@@ -114,4 +114,31 @@ export class AccountController {
       message: ReasonPhrases.OK,
     });
   }
+
+  static async withdrawal(
+    req: Request,
+    res: Response<ISuccessResponseBody>,
+  ): Promise<Response> {
+    logger.info({
+      event: 'AccountController.withdrawal',
+      details: {
+        accountId: req.accountId,
+        ownerDocumentNumber: req.ownerDocumentNumber,
+        inputData: req.body,
+      },
+    });
+
+    const { amount } = await Validator.validateFieldsBySchema<{
+      amount: number;
+    }>(req.body, accountOperationSchema);
+
+    const accountService = new AccountService();
+
+    accountService.alterBalance(req.accountId!, amount, TransactionType.debit);
+
+    return res.status(StatusCodes.OK).json({
+      uuid: req.id,
+      message: ReasonPhrases.OK,
+    });
+  }
 }

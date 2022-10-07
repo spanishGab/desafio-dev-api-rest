@@ -218,6 +218,21 @@ export class AccountService {
     }
   }
 
+  public async isBlocked(accountId: number): Promise<boolean> {
+    logger.info({
+      event: 'AccountService.isBlocked',
+      details: { accountId },
+    });
+
+    const { isActive } = await this.findOne(accountId);
+
+    if (isActive) {
+      return false;
+    }
+
+    return true;
+  }
+
   private fromDBRecord(accountRecord: Account): IAccount {
     return {
       ...accountRecord,

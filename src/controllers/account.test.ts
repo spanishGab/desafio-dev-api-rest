@@ -3,11 +3,7 @@ import { DateTime } from 'luxon';
 import request from 'supertest';
 import app from '../app';
 import props from '../common/props';
-import {
-  AccountCreationError,
-  AccountNotFoundError,
-} from '../errors/businessError';
-import { OwnershipGateway } from '../middlewares/ownershipGateway';
+import { AccountCreationError } from '../errors/businessError';
 import {
   AccountService,
   AccountType,
@@ -176,6 +172,34 @@ describe('#AccountController.deposit.SuiteTests', () => {
 
     expect(alterBalanceSpy).toHaveBeenCalledTimes(1);
     expect(alterBalanceSpy).toHaveBeenCalledWith(account.id, 10, 'CR');
+
+    expect(response.body.message).toBe(ReasonPhrases.OK);
+  });
+});
+
+describe('#AccountController.withdrawal.SuiteTests', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('Should withdrawal money from the account', async () => {
+    const alterBalanceSpy = jest
+      .spyOn(AccountService.prototype, 'alterBalance')
+      .mockResolvedValueOnce({
+        ...account,
+        balance: account.balance - 10,
+        updatedAt: DateTime.now(),
+      });
+
+    const response = await request(app)
+      .put(
+        `/${props.VERSION}/withdrawal/${account.id}?documentNumber=19777965087`,
+      )
+      .send({ amount: 10 })
+      .expect(StatusCodes.OK);
+
+    expect(alterBalanceSpy).toHaveBeenCalledTimes(1);
+    expect(alterBalanceSpy).toHaveBeenCalledWith(account.id, 10, 'DB');
 
     expect(response.body.message).toBe(ReasonPhrases.OK);
   });

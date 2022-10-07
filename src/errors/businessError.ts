@@ -57,6 +57,12 @@ export const ForbiddenAccountAccessError = new BusinessError(
   StatusCodes.FORBIDDEN,
 );
 
+export const BlockedAccountError = new BusinessError(
+  'blocked-account',
+  'This account is currently blocked and cannot be used',
+  StatusCodes.CONFLICT,
+);
+
 export const InsuficientAccountBalanceError = new BusinessError(
   'insucficient-account-balance',
   'Account has no balance to complete the transaction',

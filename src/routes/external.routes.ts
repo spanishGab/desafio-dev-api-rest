@@ -4,7 +4,7 @@ import { AccountController } from '../controllers/account';
 import { OwnerController } from '../controllers/owner';
 
 import { ISuccessResponseBody } from '../interfaces/response';
-import { OwnershipGateway } from '../middlewares/ownershipGateway';
+import { AuthGateway } from '../middlewares/AuthGateway';
 import logger from '../utils/Logger';
 
 const router = Router();
@@ -32,11 +32,11 @@ router.post('/create-owner', OwnerController.create);
 // Account operation functionalities
 router.post('/', AccountController.create);
 
-router.get('/:id', OwnershipGateway.verifyAccountOwnership, AccountController.recover);
+router.get('/:id', AuthGateway.main, AccountController.recover);
 
-router.put('/deposit/:id', OwnershipGateway.verifyAccountOwnership, AccountController.deposit);
+router.put('/deposit/:id', AuthGateway.main, AccountController.deposit);
 
-router.post('/withdrawal/:id');
+router.put('/withdrawal/:id', AuthGateway.main, AccountController.withdrawal);
 
 router.put('/block-account/:id');
 

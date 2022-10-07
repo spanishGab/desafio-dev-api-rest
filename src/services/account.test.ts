@@ -342,7 +342,14 @@ describe('#AccountServce.alterBalance.SuiteTests', () => {
     },
   ])(
     'alterBalance() throwing errors',
-    async ({ accountId, amount, finalBalance, operation, updateMock, expectedResult }) => {
+    async ({
+      accountId,
+      amount,
+      finalBalance,
+      operation,
+      updateMock,
+      expectedResult,
+    }) => {
       const findOneSpy = jest
         .spyOn(AccountService.prototype, 'findOne')
         .mockResolvedValue({
@@ -371,11 +378,7 @@ describe('#AccountServce.alterBalance.SuiteTests', () => {
       const accountService = new AccountService();
 
       try {
-        await accountService.alterBalance(
-          accountId,
-          amount,
-          operation,
-        );
+        await accountService.alterBalance(accountId, amount, operation);
         throw new Error('Test Faild. Should not reach here!');
       } catch (error) {
         expect(findOneSpy).toHaveBeenCalledTimes(1);
@@ -383,6 +386,49 @@ describe('#AccountServce.alterBalance.SuiteTests', () => {
 
         expect(error).toBe(expectedResult);
       }
+    },
+  );
+});
+
+describe('#AccountServce.isBlocked.SuiteTests', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test.each([
+    {
+      accountId: accountRecord.id,
+      isActive: true,
+      expectedResult: false,
+    },
+    {
+      accountId: accountRecord.id,
+      isActive: false,
+      expectedResult: true,
+    },
+  ])(
+    'Should indicate whether an account is blocked or not',
+    async ({ accountId, isActive, expectedResult }) => {
+      const findOneSpy = jest
+        .spyOn(AccountService.prototype, 'findOne')
+        .mockResolvedValue({
+          id: accountRecord.id,
+          balance: Number(accountRecord.balance),
+          dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
+          type: accountRecord.type as AccountType,
+          createdAt: DateTime.fromJSDate(accountRecord.createdAt),
+          updatedAt: DateTime.fromJSDate(accountRecord.updatedAt),
+          isActive,
+        });
+
+      const accountService = new AccountService();
+
+      const result = await accountService.isBlocked(accountId);
+
+      expect(findOneSpy).toHaveBeenCalledTimes(1);
+      expect(findOneSpy).toHaveBeenCalledWith(accountId);
+
+      expect(result).toStrictEqual(expectedResult);
     },
   );
 });
