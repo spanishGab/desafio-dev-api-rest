@@ -45,6 +45,7 @@ model Operation {
     id                   Int @id @default(autoincrement())
     accountId            Int @map("account_id")
     amount               Decimal
+    type                 String // TODO: Fix operation methods
     createdAt            DateTime @default(now()) @map("created_at")
     updatedAt            DateTime @default(now()) @map("updated_at")
 
