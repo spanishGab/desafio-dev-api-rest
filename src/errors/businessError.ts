@@ -21,6 +21,24 @@ export const AccountCreationError = new BusinessError(
   StatusCodes.INTERNAL_SERVER_ERROR,
 );
 
+export const AccountRecoveryError = new BusinessError(
+  'account-recovery',
+  'Error while trying to find the account',
+  StatusCodes.INTERNAL_SERVER_ERROR,
+);
+
+export const AccountBalanceAlterationError = new BusinessError(
+  'account-balance-alteration',
+  'Error while trying to alter the account balance',
+  StatusCodes.INTERNAL_SERVER_ERROR,
+);
+
+export const AccountDeactivationError = new BusinessError(
+  'account-deactivation',
+  'Error while trying to deactivate the account',
+  StatusCodes.INTERNAL_SERVER_ERROR,
+);
+
 export const WrongAccountTypeError = new BusinessError(
   'wrong-account-type',
   "There is something wrong with the owners specified for this account type",
@@ -35,7 +53,7 @@ export const AccountNotFoundError = new BusinessError(
 
 export const OwnerCreationError = new BusinessError(
   'owner-creation',
-  'Error while trying to create the account Owner',
+  'Error while trying to create the account owner',
   StatusCodes.INTERNAL_SERVER_ERROR,
 );
 
@@ -49,6 +67,12 @@ export const OwnerNotFoundError = new BusinessError(
   'owner-not-found',
   'Account owner not found',
   StatusCodes.NOT_FOUND,
+);
+
+export const AccountOwnerAuthorizationError = new BusinessError(
+  'account-owner-authorization',
+  'Error while trying to authorize the account owner',
+  StatusCodes.INTERNAL_SERVER_ERROR,
 );
 
 export const ForbiddenAccountAccessError = new BusinessError(
@@ -68,3 +92,9 @@ export const InsuficientAccountBalanceError = new BusinessError(
   'Account has no balance to complete the transaction',
   StatusCodes.CONFLICT,
 );
+
+export const AccountOperationCreationError = new BusinessError(
+  'account-operation-creation',
+  'Error while trying to register the account operation',
+  StatusCodes.INTERNAL_SERVER_ERROR,
+)

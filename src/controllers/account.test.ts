@@ -121,6 +121,15 @@ describe('#AccountController.recover.SuiteTests', () => {
         return account;
       });
 
+    // Mocking AuthGateway
+    const isAccountOwnerAuthorizedSpy = jest
+      .spyOn(OwnerService.prototype, 'isAccountOwnerAuthorized')
+      .mockResolvedValue(true);
+
+    const isAccountBlockedSpy = jest
+      .spyOn(AccountService.prototype, 'isBlocked')
+      .mockResolvedValue(false);
+
     const ownerDocumentNumber = '19777965087';
 
     const response = await request(app)
@@ -129,7 +138,16 @@ describe('#AccountController.recover.SuiteTests', () => {
       )
       .expect(StatusCodes.OK);
 
-    expect(findOneSpy).toHaveBeenCalledTimes(2); // here the findOne was already used once by the AuthGateway
+    expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledTimes(1);
+    expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledWith(
+      ownerDocumentNumber,
+      account.id,
+    );
+
+    expect(isAccountBlockedSpy).toHaveBeenCalledTimes(1);
+    expect(isAccountBlockedSpy).toHaveBeenCalledWith(account.id);
+
+    expect(findOneSpy).toHaveBeenCalledTimes(1);
     expect(findOneSpy).toHaveBeenCalledWith(account.id);
 
     expect(response.body.message).toBe(ReasonPhrases.OK);
@@ -155,13 +173,35 @@ describe('#AccountController.deposit.SuiteTests', () => {
         updatedAt: DateTime.now(),
       });
 
+    // Mocking AuthGateway
+    const isAccountOwnerAuthorizedSpy = jest
+      .spyOn(OwnerService.prototype, 'isAccountOwnerAuthorized')
+      .mockResolvedValue(true);
+
+    const isAccountBlockedSpy = jest
+      .spyOn(AccountService.prototype, 'isBlocked')
+      .mockResolvedValue(false);
+
+    const ownerDocumentNumber = '19777965087';
+
     const response = await request(app)
-      .put(`/${props.VERSION}/deposit/${account.id}?documentNumber=19777965087`)
+      .put(
+        `/${props.VERSION}/deposit/${account.id}?documentNumber=${ownerDocumentNumber}`,
+      )
       .send({ amount: 10 })
       .expect(StatusCodes.OK);
 
+    expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledTimes(1);
+    expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledWith(
+      ownerDocumentNumber,
+      account.id,
+    );
+
+    expect(isAccountBlockedSpy).toHaveBeenCalledTimes(1);
+    expect(isAccountBlockedSpy).toHaveBeenCalledWith(account.id);
+
     expect(alterBalanceSpy).toHaveBeenCalledTimes(1);
-    expect(alterBalanceSpy).toHaveBeenCalledWith(account.id, 10, 'CR');
+    expect(alterBalanceSpy).toHaveBeenCalledWith(account.id, 10, 'deposit');
 
     expect(response.body.message).toBe(ReasonPhrases.OK);
   });
@@ -181,15 +221,35 @@ describe('#AccountController.withdrawal.SuiteTests', () => {
         updatedAt: DateTime.now(),
       });
 
+    // Mocking AuthGateway
+    const isAccountOwnerAuthorizedSpy = jest
+      .spyOn(OwnerService.prototype, 'isAccountOwnerAuthorized')
+      .mockResolvedValue(true);
+
+    const isAccountBlockedSpy = jest
+      .spyOn(AccountService.prototype, 'isBlocked')
+      .mockResolvedValue(false);
+
+    const ownerDocumentNumber = '19777965087';
+
     const response = await request(app)
       .put(
-        `/${props.VERSION}/withdrawal/${account.id}?documentNumber=19777965087`,
+        `/${props.VERSION}/withdrawal/${account.id}?documentNumber=${ownerDocumentNumber}`,
       )
       .send({ amount: 10 })
       .expect(StatusCodes.OK);
 
+    expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledTimes(1);
+    expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledWith(
+      ownerDocumentNumber,
+      account.id,
+    );
+
+    expect(isAccountBlockedSpy).toHaveBeenCalledTimes(1);
+    expect(isAccountBlockedSpy).toHaveBeenCalledWith(account.id);
+
     expect(alterBalanceSpy).toHaveBeenCalledTimes(1);
-    expect(alterBalanceSpy).toHaveBeenCalledWith(account.id, 10, 'DB');
+    expect(alterBalanceSpy).toHaveBeenCalledWith(account.id, 10, 'withdrawal');
 
     expect(response.body.message).toBe(ReasonPhrases.OK);
   });
@@ -208,9 +268,31 @@ describe('#AccountController.block.SuiteTests', () => {
         isActive: false,
       });
 
+    // Mocking AuthGateway
+    const isAccountOwnerAuthorizedSpy = jest
+      .spyOn(OwnerService.prototype, 'isAccountOwnerAuthorized')
+      .mockResolvedValue(true);
+
+    const isAccountBlockedSpy = jest
+      .spyOn(AccountService.prototype, 'isBlocked')
+      .mockResolvedValue(false);
+
+    const ownerDocumentNumber = '19777965087';
+
     const response = await request(app)
-      .put(`/${props.VERSION}/block/${account.id}?documentNumber=19777965087`)
+      .put(
+        `/${props.VERSION}/block/${account.id}?documentNumber=${ownerDocumentNumber}`,
+      )
       .expect(StatusCodes.OK);
+
+    expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledTimes(1);
+    expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledWith(
+      ownerDocumentNumber,
+      account.id,
+    );
+
+    expect(isAccountBlockedSpy).toHaveBeenCalledTimes(1);
+    expect(isAccountBlockedSpy).toHaveBeenCalledWith(account.id);
 
     expect(blockSpy).toHaveBeenCalledTimes(1);
     expect(blockSpy).toHaveBeenCalledWith(account.id);

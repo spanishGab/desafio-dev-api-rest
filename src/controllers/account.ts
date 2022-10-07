@@ -13,7 +13,7 @@ import {
   AccountType,
   IAccount,
   NewAccount,
-  TransactionType,
+  OperationType,
 } from '../services/account';
 import logger from '../utils/Logger';
 import { Validator } from '../validators/validator';
@@ -107,7 +107,7 @@ export class AccountController {
 
     const accountService = new AccountService();
 
-    await accountService.alterBalance(req.accountId!, amount, TransactionType.credit);
+    await accountService.alterBalance(req.accountId!, amount, OperationType.credit);
 
     return res.status(StatusCodes.OK).json({
       uuid: req.id,
@@ -134,7 +134,7 @@ export class AccountController {
 
     const accountService = new AccountService();
 
-    await accountService.alterBalance(req.accountId!, amount, TransactionType.debit);
+    await accountService.alterBalance(req.accountId!, amount, OperationType.debit);
 
     return res.status(StatusCodes.OK).json({
       uuid: req.id,

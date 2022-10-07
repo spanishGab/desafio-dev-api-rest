@@ -4,11 +4,11 @@ import { DateTime } from 'luxon';
 
 import dbClient from '../db';
 import {
+  AccountOwnerAuthorizationError,
   OwnerAlreadyExistsError,
   OwnerCreationError,
   OwnerNotFoundError,
 } from '../errors/businessError';
-import { OwnerServiceError } from '../errors/internalErrors';
 import { SHORT_ISO8601 } from '../utils/date';
 import logger from '../utils/Logger';
 
@@ -146,7 +146,7 @@ export class OwnerService {
         },
       });
 
-      throw OwnerServiceError;
+      throw AccountOwnerAuthorizationError;
     }
   }
 

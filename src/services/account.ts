@@ -1,21 +1,23 @@
-import { Prisma, Account, Owner } from '@prisma/client';
-import { v4 as uuidV4 } from 'uuid';
+import { Prisma, Account, Owner, Operation } from '@prisma/client';
 
 import { DateTime } from 'luxon';
 import {
+  AccountBalanceAlterationError,
   AccountCreationError,
+  AccountDeactivationError,
   AccountNotFoundError,
+  AccountOperationCreationError,
+  AccountRecoveryError,
   InsuficientAccountBalanceError,
   WrongAccountTypeError,
 } from '../errors/businessError';
 import dbClient from '../db';
 import logger from '../utils/Logger';
-import { AccountServiceError } from '../errors/internalErrors';
 import { DateUtils } from '../utils/date';
 
-export const enum TransactionType {
-  credit = 'CR',
-  debit = 'DB',
+export const enum OperationType {
+  credit = 'deposit',
+  debit = 'withdrawal',
 }
 
 export const enum AccountType {
@@ -40,7 +42,20 @@ export type NewAccount = Omit<
   'id' | 'ownerId' | 'createdAt' | 'updatedAt'
 >;
 
+export interface IOperation {
+  id: number;
+  accountId: number;
+  amount: number;
+  type: OperationType;
+  createdAt: DateTime;
+  updatedAt: DateTime;
+}
+
 export class AccountService {
+  constructor(
+    private readonly operationService: AccountOperationService = new AccountOperationService(),
+  ) {}
+
   public async createNew(
     accountData: NewAccount,
     ownersDocumentNumbers: string[],
@@ -163,14 +178,14 @@ export class AccountService {
         },
       });
 
-      throw AccountServiceError;
+      throw AccountRecoveryError;
     }
   }
 
   public async alterBalance(
     accountId: number,
     amount: number,
-    operation: TransactionType,
+    operation: OperationType,
   ): Promise<IAccount> {
     logger.info({
       event: `AccountService.alterBalance.${operation}`,
@@ -180,7 +195,7 @@ export class AccountService {
     const { balance } = await this.findOne(accountId);
 
     const finalBalance =
-      operation === TransactionType.debit ? balance - amount : balance + amount;
+      operation === OperationType.debit ? balance - amount : balance + amount;
 
     if (finalBalance < 0) {
       logger.error({
@@ -195,7 +210,7 @@ export class AccountService {
     }
 
     try {
-      return this.fromDBRecord(
+      const updatedAccount = this.fromDBRecord(
         await dbClient.account.update({
           where: {
             id: accountId,
@@ -206,6 +221,10 @@ export class AccountService {
           },
         }),
       );
+
+      await this.operationService.createNew(accountId, amount, operation);
+
+      return updatedAccount;
     } catch (error) {
       logger.error({
         event: 'AccountService.alterBalance.error',
@@ -214,7 +233,7 @@ export class AccountService {
         },
       });
 
-      throw AccountServiceError;
+      throw AccountBalanceAlterationError;
     }
   }
 
@@ -243,7 +262,7 @@ export class AccountService {
         },
       });
 
-      throw AccountServiceError;
+      throw AccountDeactivationError;
     }
   }
 
@@ -270,6 +289,52 @@ export class AccountService {
       type: accountRecord.type as AccountType,
       createdAt: DateTime.fromJSDate(accountRecord.createdAt),
       updatedAt: DateTime.fromJSDate(accountRecord.updatedAt),
+    };
+  }
+}
+
+export class AccountOperationService {
+  public async createNew(
+    accountId: number,
+    amount: number,
+    type: OperationType,
+  ): Promise<IOperation> {
+    logger.info({
+      event: 'AccountOperationService.createOperation',
+      details: {
+        accountId,
+        amount,
+        type,
+      },
+    });
+
+    try {
+      const operation: Operation = await dbClient.operation.create({
+        data: {
+          accountId,
+          type,
+          amount,
+        },
+      });
+
+      return this.fromDBRecord(operation);
+    } catch (error) {
+      logger.error({
+        event: 'AccountOperationService.createOperation.error',
+        details: error.message,
+      });
+
+      throw AccountOperationCreationError;
+    }
+  }
+
+  private fromDBRecord(operationRecord: Operation): IOperation {
+    return {
+      ...operationRecord,
+      amount: Number(operationRecord.amount),
+      type: operationRecord.type as OperationType,
+      createdAt: DateTime.fromJSDate(operationRecord.createdAt),
+      updatedAt: DateTime.fromJSDate(operationRecord.updatedAt),
     };
   }
 }

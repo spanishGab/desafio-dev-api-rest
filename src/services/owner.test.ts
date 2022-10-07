@@ -1,10 +1,10 @@
 import { AccountOwner, Owner, Prisma } from '@prisma/client';
 import { prismaMock } from '../../prismaSingleton';
 import {
+  AccountOwnerAuthorizationError,
   OwnerCreationError,
   OwnerNotFoundError,
 } from '../errors/businessError';
-import { OwnerServiceError } from '../errors/internalErrors';
 import { OwnerService } from './owner';
 
 const ownerRecord = {
@@ -228,7 +228,7 @@ describe('#OwnerService.isAccountOwnerAuthorized.SuitTests', () => {
         throw new Error('Error while performing query on the database');
       },
       accountIdMock: 2,
-      expectedResult: OwnerServiceError,
+      expectedResult: AccountOwnerAuthorizationError,
     },
   ])(
     'isAccountOwnerAuthorized() throwing errors',
