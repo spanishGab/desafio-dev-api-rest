@@ -7,6 +7,7 @@ import {
   INVALID_OWNERS_DOCUMENT_NUMBERS,
   INVALID_ACCOUNT_ID,
   INVALID_OPERATION_AMOUNT,
+  INVALID_PERIOD,
 } from './errorMessages';
 import { cpfField } from './fields';
 
@@ -43,6 +44,7 @@ export const accountRecoverySchema = Joi.object({
   id: Joi.number()
     .required()
     .positive()
+    .integer()
     .messages({ '*': INVALID_ACCOUNT_ID }),
 });
 
@@ -51,4 +53,12 @@ export const accountOperationSchema = Joi.object({
     .required()
     .positive()
     .messages({ '*': INVALID_OPERATION_AMOUNT }),
+});
+
+export const transactionStatementSchema = Joi.object({
+  period: Joi.number()
+    .required()
+    .positive()
+    .integer()
+    .messages({ '*': INVALID_PERIOD })
 })

@@ -40,6 +40,6 @@ router.put('/withdrawal/:id', AuthGateway.main, AccountController.withdrawal);
 
 router.put('/block/:id', AuthGateway.main, AccountController.block);
 
-router.get('/receipt/:id');
+router.get('/statement/:id');
 
 export default router;
