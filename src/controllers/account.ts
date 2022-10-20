@@ -7,6 +7,7 @@ import {
   accountCreationSchema,
   accountOperationSchema,
   accountRecoverySchema,
+  transactionStatementSchema,
 } from '../schemas/account';
 import {
   AccountService,
@@ -107,7 +108,11 @@ export class AccountController {
 
     const accountService = new AccountService();
 
-    await accountService.alterBalance(req.accountId!, amount, OperationType.credit);
+    await accountService.alterBalance(
+      req.accountId!,
+      amount,
+      OperationType.credit,
+    );
 
     return res.status(StatusCodes.OK).json({
       uuid: req.id,
@@ -134,7 +139,11 @@ export class AccountController {
 
     const accountService = new AccountService();
 
-    await accountService.alterBalance(req.accountId!, amount, OperationType.debit);
+    await accountService.alterBalance(
+      req.accountId!,
+      amount,
+      OperationType.debit,
+    );
 
     return res.status(StatusCodes.OK).json({
       uuid: req.id,
@@ -162,5 +171,30 @@ export class AccountController {
       uuid: req.id,
       message: ReasonPhrases.OK,
     });
+  }
+
+  static async getTransactionStatement(
+    req: Request,
+    res: Response<ISuccessResponseBody>,
+  ): Promise<void> {
+    logger.info({
+      event: 'AccountController.getTransactionStatement.init',
+      details: {
+        accountId: req.accountId,
+        ownerDocumentNumber: req.ownerDocumentNumber,
+        inputData: req.query,
+      },
+    });
+
+    const { period, page, limit } = Validator.validateFieldsBySchema<{
+      period: number,
+      page: number,
+      limit: number,
+    }>(
+      req.query,
+      transactionStatementSchema,
+    );
+
+    //TODO: CONTINUAR DAQUI
   }
 }

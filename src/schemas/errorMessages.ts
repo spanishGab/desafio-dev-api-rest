@@ -18,3 +18,5 @@ export const INVALID_DAILY_WITHDRAWAL_LIMIT =
 export const INVALID_ACCOUNT_ID =
   'Attribute must be a positive number representing a valid account id';
 export const INVALID_OPERATION_AMOUNT = 'Attribute must be a positive number';
+export const INVALID_PAGE_ITEMS_LIMIT = 'Attribute must be a positive integer';
+export const INVALID_PAGE_NUMBER = 'Attribute must be a positive integer';

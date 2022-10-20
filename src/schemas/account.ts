@@ -8,6 +8,8 @@ import {
   INVALID_ACCOUNT_ID,
   INVALID_OPERATION_AMOUNT,
   INVALID_PERIOD,
+  INVALID_PAGE_ITEMS_LIMIT,
+  INVALID_PAGE_NUMBER,
 } from './errorMessages';
 import { cpfField } from './fields';
 
@@ -56,6 +58,16 @@ export const accountOperationSchema = Joi.object({
 });
 
 export const transactionStatementSchema = Joi.object({
+  limit: Joi.number()
+    .required()
+    .positive()
+    .integer()
+    .messages({ '*': INVALID_PAGE_ITEMS_LIMIT }),
+  page: Joi.number()
+    .required()
+    .positive()
+    .integer()
+    .messages({ '*': INVALID_PAGE_NUMBER }),
   period: Joi.number()
     .required()
     .positive()
