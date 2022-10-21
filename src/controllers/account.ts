@@ -186,7 +186,7 @@ export class AccountController {
       },
     });
 
-    const { period, page, limit } = Validator.validateFieldsBySchema<{
+    const { period, page, itemsPerPage } = Validator.validateFieldsBySchema<{
       period: number,
       page: number,
       limit: number,

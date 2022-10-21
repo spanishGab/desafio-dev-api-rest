@@ -97,4 +97,10 @@ export const AccountOperationCreationError = new BusinessError(
   'account-operation-creation',
   'Error while trying to register the account operation',
   StatusCodes.INTERNAL_SERVER_ERROR,
+);
+
+export const AccountOperationRecoveryError = new BusinessError(
+  'account-operation-recovery',
+  "Error while trying to recover the account's operation(s)",
+  StatusCodes.INTERNAL_SERVER_ERROR,
 )

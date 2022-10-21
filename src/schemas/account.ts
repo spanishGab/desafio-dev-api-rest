@@ -58,7 +58,7 @@ export const accountOperationSchema = Joi.object({
 });
 
 export const transactionStatementSchema = Joi.object({
-  limit: Joi.number()
+  itemsPerPage: Joi.number()
     .required()
     .positive()
     .integer()

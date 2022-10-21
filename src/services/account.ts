@@ -14,6 +14,7 @@ import {
 import dbClient from '../db';
 import logger from '../utils/Logger';
 import { DateUtils } from '../utils/date';
+import { getSafeOffsetPaginationParams } from '../utils/pagination';
 
 export const enum OperationType {
   credit = 'deposit',
@@ -321,6 +322,83 @@ export class AccountOperationService {
     } catch (error) {
       logger.error({
         event: 'AccountOperationService.createOperation.error',
+        details: error.message,
+      });
+
+      throw AccountOperationCreationError;
+    }
+  }
+
+  public async findManyPaginated(
+    period: number,
+    page: number,
+    itemsPerPage: number,
+  ): Promise<{
+    totalPages: number;
+    operations: IOperation[];
+  }> {
+    logger.info({
+      event: 'AccountOperationService.findMany',
+      details: {
+        page,
+        itemsPerPage,
+        period,
+      },
+    });
+
+    const currentDate = DateUtils.saoPauloNow();
+    const endOfPeriod = currentDate.minus({ days: period });
+
+    try {
+      const operationsCount = await dbClient.operation.count({
+        where: {
+          createdAt: {
+            lte: new Date(currentDate.toString()),
+            gte: new Date(endOfPeriod.toString()),
+          },
+        },
+      });
+
+      const totalPages = parseInt(
+        Math.ceil(operationsCount / itemsPerPage).toFixed(0),
+        10,
+      );
+
+      const safePaginationParams = getSafeOffsetPaginationParams(
+        totalPages,
+        page,
+        itemsPerPage,
+      );
+
+      const operations: Operation[] = await dbClient.operation.findMany({
+        skip: safePaginationParams.offset,
+        take: safePaginationParams.limit,
+        select: {
+          id: true,
+          accountId: true,
+          amount: true,
+          type: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        where: {
+          createdAt: {
+            lte: new Date(currentDate.toString()),
+            gte: new Date(endOfPeriod.toString()),
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      return {
+        totalPages,
+        operations: operations.map(this.fromDBRecord),
+      };
+    } catch (error) {
+      logger.error({
+        event: 'AccountOperationService.findManyPaginated.error',
         details: error.message,
       });
 
