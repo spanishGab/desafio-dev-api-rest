@@ -7,6 +7,7 @@ import {
   AccountDeactivationError,
   AccountNotFoundError,
   AccountOperationCreationError,
+  AccountOperationRecoveryError,
   AccountRecoveryError,
   InsuficientAccountBalanceError,
   WrongAccountTypeError,
@@ -14,7 +15,7 @@ import {
 import dbClient from '../db';
 import logger from '../utils/Logger';
 import { DateUtils } from '../utils/date';
-import { getSafeOffsetPaginationParams } from '../utils/pagination';
+import { PaginationUtils } from '../utils/pagination';
 
 export const enum OperationType {
   credit = 'deposit',
@@ -329,7 +330,7 @@ export class AccountOperationService {
     }
   }
 
-  public async findManyPaginated(
+  public async paginatedlyFindMany(
     period: number,
     page: number,
     itemsPerPage: number,
@@ -338,7 +339,7 @@ export class AccountOperationService {
     operations: IOperation[];
   }> {
     logger.info({
-      event: 'AccountOperationService.findMany',
+      event: 'AccountOperationService.paginatedlyFindMany',
       details: {
         page,
         itemsPerPage,
@@ -364,15 +365,15 @@ export class AccountOperationService {
         10,
       );
 
-      const safePaginationParams = getSafeOffsetPaginationParams(
+      const { offset, limit } = PaginationUtils.getSafeOffsetPaginationParams(
         totalPages,
         page,
         itemsPerPage,
       );
 
       const operations: Operation[] = await dbClient.operation.findMany({
-        skip: safePaginationParams.offset,
-        take: safePaginationParams.limit,
+        skip: offset,
+        take: limit,
         select: {
           id: true,
           accountId: true,
@@ -398,11 +399,11 @@ export class AccountOperationService {
       };
     } catch (error) {
       logger.error({
-        event: 'AccountOperationService.findManyPaginated.error',
+        event: 'AccountOperationService.paginatedlyFindMany.error',
         details: error.message,
       });
 
-      throw AccountOperationCreationError;
+      throw AccountOperationRecoveryError;
     }
   }
 

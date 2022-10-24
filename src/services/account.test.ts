@@ -7,6 +7,7 @@ import {
   AccountDeactivationError,
   AccountNotFoundError,
   AccountOperationCreationError,
+  AccountOperationRecoveryError,
   AccountRecoveryError,
   InsuficientAccountBalanceError,
   WrongAccountTypeError,
@@ -18,6 +19,7 @@ import {
   AccountType,
   OperationType,
 } from './account';
+import { PaginationUtils } from '../utils/pagination';
 
 const ownerRecord = {
   id: 1,
@@ -587,7 +589,9 @@ describe('#AccountServiceOperation.SuiteTests', () => {
         expectedResult,
       }) => {
         if (createAccountOperationMock) {
-          prismaMock.operation.create.mockImplementationOnce(createAccountOperationMock);
+          prismaMock.operation.create.mockImplementationOnce(
+            createAccountOperationMock,
+          );
         } else {
           prismaMock.operation.create.mockResolvedValue(operationRecord);
         }
@@ -598,6 +602,228 @@ describe('#AccountServiceOperation.SuiteTests', () => {
             mockedAccountOperationData.accountId,
             mockedAccountOperationData.amount,
             mockedAccountOperationData.type as OperationType,
+          );
+          throw new Error('Test faild! Should not reach here');
+        } catch (error) {
+          expect(error).toStrictEqual(expectedResult);
+        }
+      },
+    );
+  });
+
+  describe('#AccountServiceOperation.paginatedlyFindMany.SuiteTests', () => {
+    let accountOperationRecords: Operation[];
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    })
+
+    beforeAll(() => {
+      accountOperationRecords = [
+        {
+          id: 1,
+          accountId: 1,
+          amount: new Prisma.Decimal(50),
+          type: 'DB',
+          createdAt: new Date(DateTime.now().toISODate()),
+          updatedAt: new Date(DateTime.now().toISODate()),
+        },
+        {
+          id: 2,
+          accountId: 1,
+          amount: new Prisma.Decimal(10),
+          type: 'DB',
+          createdAt: new Date(DateTime.now().toISODate()),
+          updatedAt: new Date(DateTime.now().toISODate()),
+        },
+        {
+          id: 3,
+          accountId: 1,
+          amount: new Prisma.Decimal(1000),
+          type: 'CR',
+          createdAt: new Date(DateTime.now().toISODate()),
+          updatedAt: new Date(DateTime.now().toISODate()),
+        },
+        {
+          id: 4,
+          accountId: 1,
+          amount: new Prisma.Decimal(1000),
+          type: 'CR',
+          createdAt: new Date(DateTime.now().minus({ days: 1 }).toISODate()),
+          updatedAt: new Date(DateTime.now().minus({ days: 1 }).toISODate()),
+        },
+        {
+          id: 5,
+          accountId: 1,
+          amount: new Prisma.Decimal(5000),
+          type: 'CR',
+          createdAt: new Date(DateTime.now().minus({ days: 1 }).toISODate()),
+          updatedAt: new Date(DateTime.now().minus({ days: 1 }).toISODate()),
+        },
+        {
+          id: 6,
+          accountId: 1,
+          amount: new Prisma.Decimal(500),
+          type: 'DB',
+          createdAt: new Date(DateTime.now().minus({ days: 2 }).toISODate()),
+          updatedAt: new Date(DateTime.now().minus({ days: 2 }).toISODate()),
+        },
+      ];
+    });
+    test.each([
+      {
+        period: 5,
+        page: 2,
+        itemsPerPage: 2,
+        offset: 2,
+        limit: 2,
+      },
+      {
+        period: 3,
+        page: 1,
+        itemsPerPage: 2,
+        offset: 0,
+        limit: 2,
+      },
+    ])(
+      'Should find many account operation records successfully in the database',
+      async ({ period, page, itemsPerPage, offset, limit }) => {
+        const currentDate = DateUtils.saoPauloNow();
+        const endOfPeriod = currentDate.minus({ days: period });
+
+        prismaMock.operation.count.calledWith({
+          where: {
+            createdAt: {
+              lte: new Date(currentDate.toString()),
+              gte: new Date(endOfPeriod.toString()),
+            },
+          },
+        });
+
+        prismaMock.operation.count.mockResolvedValue(
+          accountOperationRecords.length,
+        );
+
+        const paginationUtilSpy = jest
+          .spyOn(PaginationUtils, 'getSafeOffsetPaginationParams')
+          .mockReturnValue({
+            offset,
+            limit,
+          });
+
+        prismaMock.operation.findMany.calledWith({
+          skip: offset,
+          take: limit,
+          select: {
+            id: true,
+            accountId: true,
+            amount: true,
+            type: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          where: {
+            createdAt: {
+              lte: new Date(currentDate.toString()),
+              gte: new Date(endOfPeriod.toString()),
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        });
+
+        const mockedPaginatedFindManyResult = accountOperationRecords.slice(offset, offset + limit);
+        prismaMock.operation.findMany.mockResolvedValue(mockedPaginatedFindManyResult);
+
+        const accountOperationService = new AccountOperationService();
+
+        const { totalPages, operations } =
+          await accountOperationService.paginatedlyFindMany(
+            period,
+            page,
+            itemsPerPage,
+          );
+
+        expect(paginationUtilSpy).toHaveBeenCalledTimes(1);
+        expect(paginationUtilSpy).toHaveBeenCalledWith(
+          accountOperationRecords.length / itemsPerPage,
+          page,
+          itemsPerPage,
+        );
+
+        expect(totalPages).toBe(accountOperationRecords.length / itemsPerPage);
+        expect(operations).toHaveLength(mockedPaginatedFindManyResult.length);
+
+        for (let i = 0; i < operations.length; i++) {
+          expect(operations[i]).toStrictEqual({
+            ...mockedPaginatedFindManyResult[i],
+            amount: Number(mockedPaginatedFindManyResult[i].amount),
+            type: mockedPaginatedFindManyResult[i].type as OperationType,
+            createdAt: DateTime.fromJSDate(mockedPaginatedFindManyResult[i].createdAt),
+            updatedAt: DateTime.fromJSDate(mockedPaginatedFindManyResult[i].updatedAt),
+          });
+        }
+      },
+    );
+
+    test.each([
+      {
+        countAccountOperationMock: () => {
+          throw new Error('Error while trying to count registers on the database');
+        },
+        findManyAccountOperationMock: undefined,
+        period: 5,
+        page: 2,
+        itemsPerPage: 2,
+        offset: 2,
+        limit: 2,
+        expectedResult: AccountOperationRecoveryError,
+      },
+      {
+        countAccountOperationMock: undefined,
+        findManyAccountOperationMock: () => {
+          throw new Error('Error while trying to find registers on the database');
+        },
+        period: 3,
+        page: 1,
+        itemsPerPage: 2,
+        offset: 0,
+        limit: 2,
+        expectedResult: AccountOperationRecoveryError,
+      },
+    ])(
+      'AccountService.paginatedlyFindMany() throwing errors',
+      async ({
+        countAccountOperationMock,
+        findManyAccountOperationMock,
+        period,
+        page,
+        itemsPerPage,
+        offset,
+        limit,
+        expectedResult,
+      }) => {
+        if (countAccountOperationMock) {
+          prismaMock.operation.count.mockImplementationOnce(countAccountOperationMock);
+        } else {
+          prismaMock.operation.count.mockResolvedValue(accountOperationRecords.length);
+        }
+
+        if (findManyAccountOperationMock) {
+          prismaMock.operation.findMany.mockImplementationOnce(findManyAccountOperationMock);
+        } else {
+          prismaMock.operation.findMany.mockResolvedValue(
+            accountOperationRecords.slice(offset, offset + limit)
+          );
+        }
+        const accountOperationService = new AccountOperationService();
+
+        try {
+          await accountOperationService.paginatedlyFindMany(
+            period,
+            page,
+            itemsPerPage,
           );
           throw new Error('Test faild! Should not reach here');
         } catch (error) {
