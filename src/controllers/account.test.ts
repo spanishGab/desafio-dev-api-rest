@@ -5,10 +5,12 @@ import app from '../app';
 import props from '../common/props';
 import { AccountCreationError } from '../errors/businessError';
 import {
+  AccountOperationService,
   AccountService,
   AccountType,
   IAccount,
   NewAccount,
+  OperationType,
 } from '../services/account';
 import { OwnerService } from '../services/owner';
 import { DateUtils } from '../utils/date';
@@ -298,5 +300,77 @@ describe('#AccountController.block.SuiteTests', () => {
     expect(blockSpy).toHaveBeenCalledWith(account.id);
 
     expect(response.body.message).toBe(ReasonPhrases.OK);
+  });
+});
+
+describe('#AccountController.paginatedlyFindMany.SuiteTests', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('Should return account operations as paginated results', async () => {
+    const paginatedlyFindManySpy = jest
+      .spyOn(AccountOperationService.prototype, 'paginatedlyFindMany')
+      .mockResolvedValueOnce({
+        totalPages: 3,
+        operations: [
+          {
+            id: 3,
+            accountId: 1,
+            amount: 1000,
+            type: OperationType.credit,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          },
+          {
+            id: 4,
+            accountId: 1,
+            amount: 1000,
+            type: OperationType.credit,
+            createdAt: DateTime.now().minus({ days: 1 }),
+            updatedAt: DateTime.now().minus({ days: 1 }),
+          },
+        ],
+      });
+
+    // Mocking AuthGateway
+    const isAccountOwnerAuthorizedSpy = jest
+      .spyOn(OwnerService.prototype, 'isAccountOwnerAuthorized')
+      .mockResolvedValue(true);
+
+    const isAccountBlockedSpy = jest
+      .spyOn(AccountService.prototype, 'isBlocked')
+      .mockResolvedValue(false);
+
+    const ownerDocumentNumber = '19777965087';
+    const body = {
+      period: 5,
+      page: 2,
+      itemsPerPage: 2,
+    };
+
+    const response = await request(app)
+      .get(
+        `/${props.VERSION}/statement/${account.id}?documentNumber=${ownerDocumentNumber}`,
+      )
+      .send(body)
+      .expect(StatusCodes.OK);
+
+    expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledTimes(1);
+    expect(isAccountOwnerAuthorizedSpy).toHaveBeenCalledWith(
+      ownerDocumentNumber,
+      account.id,
+    );
+
+    expect(isAccountBlockedSpy).toHaveBeenCalledTimes(1);
+    expect(isAccountBlockedSpy).toHaveBeenCalledWith(account.id);
+
+    expect(paginatedlyFindManySpy).toHaveBeenCalledTimes(1);
+    expect(paginatedlyFindManySpy).toHaveBeenCalledWith(body.period, body.page, body.itemsPerPage);
+
+    expect(response.body.message).toBe(ReasonPhrases.OK);
+    expect(response.body.content).toHaveProperty('totalPages');
+    expect(response.body.content).toHaveProperty('operations');
+    expect(response.body.content.operations).toHaveLength(2);
   });
 });

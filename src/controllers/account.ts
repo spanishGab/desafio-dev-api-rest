@@ -10,9 +10,11 @@ import {
   transactionStatementSchema,
 } from '../schemas/account';
 import {
+  AccountOperationService,
   AccountService,
   AccountType,
   IAccount,
+  IPaginatedAccountOperationInfo,
   NewAccount,
   OperationType,
 } from '../services/account';
@@ -176,25 +178,36 @@ export class AccountController {
   static async getTransactionStatement(
     req: Request,
     res: Response<ISuccessResponseBody>,
-  ): Promise<void> {
+  ): Promise<Response> {
     logger.info({
       event: 'AccountController.getTransactionStatement.init',
       details: {
         accountId: req.accountId,
         ownerDocumentNumber: req.ownerDocumentNumber,
-        inputData: req.query,
+        inputData: req.body,
       },
     });
 
-    const { period, page, itemsPerPage } = Validator.validateFieldsBySchema<{
-      period: number,
-      page: number,
-      limit: number,
-    }>(
-      req.query,
-      transactionStatementSchema,
-    );
+    const { period, page, itemsPerPage } =
+      await Validator.validateFieldsBySchema<{
+        period: number;
+        page: number;
+        itemsPerPage: number;
+      }>(req.body, transactionStatementSchema);
 
-    //TODO: CONTINUAR DAQUI
+    const accountOperationService = new AccountOperationService();
+
+    const transactionStatement: IPaginatedAccountOperationInfo =
+      await accountOperationService.paginatedlyFindMany(
+        period,
+        page,
+        itemsPerPage,
+      );
+
+    return res.status(StatusCodes.OK).json({
+      uuid: req.id,
+      message: ReasonPhrases.OK,
+      content: transactionStatement,
+    });
   }
 }

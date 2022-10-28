@@ -53,6 +53,11 @@ export interface IOperation {
   updatedAt: DateTime;
 }
 
+export interface IPaginatedAccountOperationInfo {
+  totalPages: number;
+  operations: IOperation[];
+}
+
 export class AccountService {
   constructor(
     private readonly operationService: AccountOperationService = new AccountOperationService(),
@@ -334,10 +339,7 @@ export class AccountOperationService {
     period: number,
     page: number,
     itemsPerPage: number,
-  ): Promise<{
-    totalPages: number;
-    operations: IOperation[];
-  }> {
+  ): Promise<IPaginatedAccountOperationInfo> {
     logger.info({
       event: 'AccountOperationService.paginatedlyFindMany',
       details: {
