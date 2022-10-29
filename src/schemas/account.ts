@@ -28,10 +28,6 @@ export const accountCreationSchema = Joi.object({
       .required()
       .min(0)
       .messages({ '*': INVALID_BALANCE }),
-    dailyWithdrawalLimit: Joi.number()
-      .required()
-      .positive()
-      .messages({ '*': INVALID_DAILY_WITHDRAWAL_LIMIT }),
   }),
   ownersDocumentNumbers: Joi.array()
     .items(cpfField.required())

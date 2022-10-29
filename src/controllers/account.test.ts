@@ -19,7 +19,6 @@ import { IAccountRequestBody } from './account';
 const account = {
   id: 1,
   balance: 150,
-  dailyWithdrawalLimit: 100,
   isActive: true,
   type: 'corrente',
   createdAt: DateTime.fromISO('2022-09-07T21:33:07.969-03:00'),
@@ -30,7 +29,6 @@ const newAccount: IAccountRequestBody = {
   accountInformation: {
     type: AccountType.corrente,
     balance: 150,
-    dailyWithdrawalLimit: 200,
   },
   ownersDocumentNumbers: ['83065825007'],
 };
@@ -49,8 +47,6 @@ describe('#AccountController.create.SuiteTests', () => {
             id: 1,
             ownerId: 1,
             balance: newAccount.accountInformation.balance,
-            dailyWithdrawalLimit:
-              newAccount.accountInformation.dailyWithdrawalLimit,
             isActive: true,
             type: newAccount.accountInformation.type,
             createdAt: DateUtils.saoPauloNow(),
@@ -68,8 +64,6 @@ describe('#AccountController.create.SuiteTests', () => {
     expect(createNewSpy).toHaveBeenCalledWith(
       {
         balance: newAccount.accountInformation.balance,
-        dailyWithdrawalLimit:
-          newAccount.accountInformation.dailyWithdrawalLimit,
         type: newAccount.accountInformation.type,
         isActive: true,
       },
@@ -98,8 +92,6 @@ describe('#AccountController.create.SuiteTests', () => {
     expect(createNewSpy).toHaveBeenCalledWith(
       {
         balance: newAccount.accountInformation.balance,
-        dailyWithdrawalLimit:
-          newAccount.accountInformation.dailyWithdrawalLimit,
         type: newAccount.accountInformation.type,
         isActive: true,
       },
@@ -367,6 +359,7 @@ describe('#AccountController.paginatedlyFindMany.SuiteTests', () => {
 
     expect(paginatedlyFindManySpy).toHaveBeenCalledTimes(1);
     expect(paginatedlyFindManySpy).toHaveBeenCalledWith(
+      account.id,
       body.period,
       body.page,
       body.itemsPerPage,

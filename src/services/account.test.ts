@@ -31,7 +31,6 @@ const ownerRecord = {
 const accountRecord: Account = {
   id: 1,
   balance: new Prisma.Decimal(500),
-  dailyWithdrawalLimit: new Prisma.Decimal(500),
   isActive: true,
   type: 'corrente',
   createdAt: new Date(2022, 9, 1),
@@ -40,7 +39,6 @@ const accountRecord: Account = {
 
 const accountData = {
   balance: 500,
-  dailyWithdrawalLimit: 500,
   isActive: true,
   type: AccountType.corrente,
 };
@@ -48,7 +46,6 @@ const accountData = {
 const defaultAccountSelect = {
   id: true,
   balance: true,
-  dailyWithdrawalLimit: true,
   isActive: true,
   type: true,
   createdAt: true,
@@ -97,7 +94,6 @@ describe('#AccountService.SuitTests', () => {
         select: {
           id: true,
           balance: true,
-          dailyWithdrawalLimit: true,
           isActive: true,
           type: true,
           createdAt: true,
@@ -114,7 +110,6 @@ describe('#AccountService.SuitTests', () => {
       ).resolves.toStrictEqual({
         id: 1,
         balance: 500,
-        dailyWithdrawalLimit: 500,
         isActive: true,
         type: AccountType.corrente,
         createdAt: DateTime.fromJSDate(new Date(2022, 9, 1)),
@@ -222,7 +217,6 @@ describe('#AccountService.SuitTests', () => {
       expect(accountService.findOne(accountRecord.id)).resolves.toStrictEqual({
         id: accountRecord.id,
         balance: Number(accountRecord.balance),
-        dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
         isActive: accountRecord.isActive,
         type: accountRecord.type,
         createdAt: DateTime.fromJSDate(accountRecord.createdAt),
@@ -278,7 +272,6 @@ describe('#AccountService.SuitTests', () => {
         expectedResult: {
           ...accountRecord,
           balance: 510,
-          dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
           type: accountRecord.type as AccountType,
           createdAt: DateTime.fromJSDate(accountRecord.createdAt),
           updatedAt: DateTime.now(),
@@ -292,7 +285,6 @@ describe('#AccountService.SuitTests', () => {
         expectedResult: {
           ...accountRecord,
           balance: 490,
-          dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
           type: accountRecord.type as AccountType,
           createdAt: DateTime.fromJSDate(accountRecord.createdAt),
           updatedAt: DateTime.now(),
@@ -312,7 +304,6 @@ describe('#AccountService.SuitTests', () => {
           .mockResolvedValue({
             ...accountRecord,
             balance: Number(accountRecord.balance),
-            dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
             type: accountRecord.type as AccountType,
             createdAt: DateTime.fromJSDate(accountRecord.createdAt),
             updatedAt: DateTime.fromJSDate(accountRecord.updatedAt),
@@ -400,7 +391,6 @@ describe('#AccountService.SuitTests', () => {
           .mockResolvedValue({
             ...accountRecord,
             balance: Number(accountRecord.balance),
-            dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
             type: accountRecord.type as AccountType,
             createdAt: DateTime.fromJSDate(accountRecord.createdAt),
             updatedAt: DateTime.fromJSDate(accountRecord.updatedAt),
@@ -462,7 +452,6 @@ describe('#AccountService.SuitTests', () => {
       ).resolves.toStrictEqual({
         id: 1,
         balance: Number(accountRecord.balance),
-        dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
         isActive: false,
         type: accountRecord.type,
         createdAt: DateTime.fromJSDate(accountRecord.createdAt),
@@ -518,7 +507,6 @@ describe('#AccountService.SuitTests', () => {
           .mockResolvedValue({
             id: accountRecord.id,
             balance: Number(accountRecord.balance),
-            dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
             type: accountRecord.type as AccountType,
             createdAt: DateTime.fromJSDate(accountRecord.createdAt),
             updatedAt: DateTime.fromJSDate(accountRecord.updatedAt),
@@ -699,6 +687,7 @@ describe('#AccountServiceOperation.SuiteTests', () => {
               lte: new Date(currentDate.toString()),
               gte: new Date(endOfPeriod.toString()),
             },
+            accountId: 1,
           },
         });
 
@@ -730,6 +719,7 @@ describe('#AccountServiceOperation.SuiteTests', () => {
               lte: new Date(currentDate.toString()),
               gte: new Date(endOfPeriod.toString()),
             },
+            accountId: 1,
           },
           orderBy: {
             createdAt: 'desc',
@@ -743,6 +733,7 @@ describe('#AccountServiceOperation.SuiteTests', () => {
 
         const result =
           await accountOperationService.paginatedlyFindMany(
+            1,
             period,
             page,
             itemsPerPage,
@@ -824,6 +815,7 @@ describe('#AccountServiceOperation.SuiteTests', () => {
 
         try {
           await accountOperationService.paginatedlyFindMany(
+            1,
             period,
             page,
             itemsPerPage,

@@ -32,7 +32,6 @@ export const enum AccountType {
 export interface IAccount {
   id: number;
   balance: number;
-  dailyWithdrawalLimit: number;
   isActive: boolean;
   type: AccountType;
   createdAt: DateTime;
@@ -121,7 +120,6 @@ export class AccountService {
         select: {
           id: true,
           balance: true,
-          dailyWithdrawalLimit: true,
           isActive: true,
           type: true,
           createdAt: true,
@@ -292,7 +290,6 @@ export class AccountService {
     return {
       ...accountRecord,
       balance: Number(accountRecord.balance),
-      dailyWithdrawalLimit: Number(accountRecord.dailyWithdrawalLimit),
       type: accountRecord.type as AccountType,
       createdAt: DateTime.fromJSDate(accountRecord.createdAt),
       updatedAt: DateTime.fromJSDate(accountRecord.updatedAt),
@@ -336,6 +333,7 @@ export class AccountOperationService {
   }
 
   public async paginatedlyFindMany(
+    accountId: number,
     period: number,
     page: number,
     itemsPerPage: number,
@@ -359,6 +357,7 @@ export class AccountOperationService {
             lte: new Date(currentDate.toString()),
             gte: new Date(endOfPeriod.toString()),
           },
+          accountId,
         },
       });
 
@@ -394,6 +393,7 @@ export class AccountOperationService {
             lte: new Date(currentDate.toString()),
             gte: new Date(endOfPeriod.toString()),
           },
+          accountId,
         },
         orderBy: {
           createdAt: 'desc',

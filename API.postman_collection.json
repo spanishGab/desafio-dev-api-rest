@@ -1,0 +1,247 @@
+{
+	"info": {
+		"_postman_id": "6fea3071-ba44-458b-b0d9-3d6596801667",
+		"name": "API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/healthcheck",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base-url}}/healthcheck",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"healthcheck"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"accountInformation\": {\n        \"type\": \"poupanca\",\n        \"balance\": 10000\n    },\n    \"ownersDocumentNumbers\": [\"96540972067\"]\n}"
+				},
+				"url": {
+					"raw": "{{base-url}}/",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/recover-owner/{owner-cpf}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base-url}}/recover-owner/95418299026",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"recover-owner",
+						"95418299026"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/account-owner",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Elwe Thingol\",\n    \"documentNumber\": \"774.199.680-04\",\n    \"birthDate\": \"2000-11-19\"\n}"
+				},
+				"url": {
+					"raw": "{{base-url}}/create-owner",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"create-owner"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/{account-id}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base-url}}/3?documentNumber=87375874042",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"3"
+					],
+					"query": [
+						{
+							"key": "documentNumber",
+							"value": "87375874042"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/deposit/{account-id}",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": 500\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base-url}}/deposit/3?documentNumber=74944984006",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"deposit",
+						"3"
+					],
+					"query": [
+						{
+							"key": "documentNumber",
+							"value": "74944984006"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/withdrawal/{account-id}",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": 2500\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base-url}}/withdrawal/3?documentNumber=87375874042",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"withdrawal",
+						"3"
+					],
+					"query": [
+						{
+							"key": "documentNumber",
+							"value": "87375874042"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/block/{account-id}",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{base-url}}/block/1?documentNumber=19777965087",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"block",
+						"1"
+					],
+					"query": [
+						{
+							"key": "documentNumber",
+							"value": "19777965087"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/statement/{account-id}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base-url}}/statement/1?documentNumber=19777965087&period=30&page=2&itemsPerPage=4",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"statement",
+						"1"
+					],
+					"query": [
+						{
+							"key": "documentNumber",
+							"value": "19777965087"
+						},
+						{
+							"key": "period",
+							"value": "30"
+						},
+						{
+							"key": "page",
+							"value": "2"
+						},
+						{
+							"key": "itemsPerPage",
+							"value": "4"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

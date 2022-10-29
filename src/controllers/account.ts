@@ -25,7 +25,6 @@ export interface IAccountRequestBody {
   accountInformation: {
     type: AccountType;
     balance: number;
-    dailyWithdrawalLimit: number;
   };
   ownersDocumentNumbers: string[];
 }
@@ -47,7 +46,6 @@ export class AccountController {
 
     const accountData: NewAccount = {
       balance: inputData.accountInformation.balance,
-      dailyWithdrawalLimit: inputData.accountInformation.dailyWithdrawalLimit,
       type: inputData.accountInformation.type,
       isActive: true,
     };
@@ -199,6 +197,7 @@ export class AccountController {
 
     const transactionStatement: IPaginatedAccountOperationInfo =
       await accountOperationService.paginatedlyFindMany(
+        req.accountId!,
         period,
         page,
         itemsPerPage,

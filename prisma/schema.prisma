@@ -31,7 +31,6 @@ model AccountOwner {
 model Account {
     id                   Int @id @default(autoincrement())
     balance              Decimal @default(0)
-    dailyWithdrawalLimit Decimal @default(500) @map("daily_withdrawal_limit")
     isActive             Boolean @default(false) @map("is_active")
     type                 String @default("corrente")
     createdAt            DateTime @default(now()) @map("created_at")
