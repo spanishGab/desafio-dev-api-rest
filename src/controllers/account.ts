@@ -184,7 +184,7 @@ export class AccountController {
       details: {
         accountId: req.accountId,
         ownerDocumentNumber: req.ownerDocumentNumber,
-        inputData: req.body,
+        inputData: req.query,
       },
     });
 
@@ -193,7 +193,7 @@ export class AccountController {
         period: number;
         page: number;
         itemsPerPage: number;
-      }>(req.body, transactionStatementSchema);
+      }>(req.query, transactionStatementSchema);
 
     const accountOperationService = new AccountOperationService();
 

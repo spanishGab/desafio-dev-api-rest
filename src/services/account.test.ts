@@ -677,6 +677,7 @@ describe('#AccountServiceOperation.SuiteTests', () => {
         itemsPerPage: 2,
         offset: 2,
         limit: 2,
+        totalPages: 3,
       },
       {
         period: 3,
@@ -684,10 +685,11 @@ describe('#AccountServiceOperation.SuiteTests', () => {
         itemsPerPage: 2,
         offset: 0,
         limit: 2,
+        totalPages: 3,
       },
     ])(
       'Should find many account operation records successfully in the database',
-      async ({ period, page, itemsPerPage, offset, limit }) => {
+      async ({ period, page, itemsPerPage, offset, limit, totalPages }) => {
         const currentDate = DateUtils.saoPauloNow();
         const endOfPeriod = currentDate.minus({ days: period });
 
@@ -705,10 +707,11 @@ describe('#AccountServiceOperation.SuiteTests', () => {
         );
 
         const paginationUtilSpy = jest
-          .spyOn(PaginationUtils, 'getSafeOffsetPaginationParams')
+          .spyOn(PaginationUtils, 'getSafeOffsetPaginationInfo')
           .mockReturnValue({
             offset,
             limit,
+            totalPages,
           });
 
         prismaMock.operation.findMany.calledWith({
@@ -738,7 +741,7 @@ describe('#AccountServiceOperation.SuiteTests', () => {
 
         const accountOperationService = new AccountOperationService();
 
-        const { totalPages, operations } =
+        const result =
           await accountOperationService.paginatedlyFindMany(
             period,
             page,
@@ -747,16 +750,16 @@ describe('#AccountServiceOperation.SuiteTests', () => {
 
         expect(paginationUtilSpy).toHaveBeenCalledTimes(1);
         expect(paginationUtilSpy).toHaveBeenCalledWith(
-          accountOperationRecords.length / itemsPerPage,
+          accountOperationRecords.length,
           page,
           itemsPerPage,
         );
 
-        expect(totalPages).toBe(accountOperationRecords.length / itemsPerPage);
-        expect(operations).toHaveLength(mockedPaginatedFindManyResult.length);
+        expect(result.totalPages).toBe(accountOperationRecords.length / itemsPerPage);
+        expect(result.operations).toHaveLength(mockedPaginatedFindManyResult.length);
 
-        for (let i = 0; i < operations.length; i++) {
-          expect(operations[i]).toStrictEqual({
+        for (let i = 0; i < result.operations.length; i++) {
+          expect(result.operations[i]).toStrictEqual({
             ...mockedPaginatedFindManyResult[i],
             amount: Number(mockedPaginatedFindManyResult[i].amount),
             type: mockedPaginatedFindManyResult[i].type as OperationType,

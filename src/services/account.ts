@@ -362,16 +362,21 @@ export class AccountOperationService {
         },
       });
 
-      const totalPages = parseInt(
-        Math.ceil(operationsCount / itemsPerPage).toFixed(0),
-        10,
-      );
-
-      const { offset, limit } = PaginationUtils.getSafeOffsetPaginationParams(
-        totalPages,
+      const { offset, limit, totalPages } = PaginationUtils.getSafeOffsetPaginationInfo(
+        operationsCount,
         page,
         itemsPerPage,
       );
+
+      logger.info({
+        event: 'AccountOperationService.paginatedlyFindMany',
+        details: {
+          operationsCount,
+          totalPages,
+          offset,
+          limit,
+        },
+      })
 
       const operations: Operation[] = await dbClient.operation.findMany({
         skip: offset,

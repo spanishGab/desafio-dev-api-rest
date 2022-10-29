@@ -7,10 +7,13 @@ export class Validator {
   static async validateFieldsBySchema<T>(
     fields: any,
     schema: Joi.Schema,
+    allowUnknownKeys: boolean = true,
   ): Promise<T> {
     try {
       return await schema.validateAsync(fields, {
         abortEarly: false,
+        convert: true,
+        allowUnknown: allowUnknownKeys,
       });
     } catch (validationError) {
       const error: Joi.ValidationError = validationError as Joi.ValidationError;

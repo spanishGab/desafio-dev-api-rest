@@ -351,7 +351,7 @@ describe('#AccountController.paginatedlyFindMany.SuiteTests', () => {
 
     const response = await request(app)
       .get(
-        `/${props.VERSION}/statement/${account.id}?documentNumber=${ownerDocumentNumber}`,
+        `/${props.VERSION}/statement/${account.id}?documentNumber=${ownerDocumentNumber}&period=${body.period}&page=${body.page}&itemsPerPage=${body.itemsPerPage}`,
       )
       .send(body)
       .expect(StatusCodes.OK);
@@ -366,7 +366,11 @@ describe('#AccountController.paginatedlyFindMany.SuiteTests', () => {
     expect(isAccountBlockedSpy).toHaveBeenCalledWith(account.id);
 
     expect(paginatedlyFindManySpy).toHaveBeenCalledTimes(1);
-    expect(paginatedlyFindManySpy).toHaveBeenCalledWith(body.period, body.page, body.itemsPerPage);
+    expect(paginatedlyFindManySpy).toHaveBeenCalledWith(
+      body.period,
+      body.page,
+      body.itemsPerPage,
+    );
 
     expect(response.body.message).toBe(ReasonPhrases.OK);
     expect(response.body.content).toHaveProperty('totalPages');

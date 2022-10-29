@@ -1,12 +1,15 @@
+export interface IOffsetPaginationInfo {
+  offset: number,
+  limit: number,
+  totalPages: number,
+}
+
 export class PaginationUtils {
-  static getSafeOffsetPaginationParams(
+  static getSafeOffsetPaginationInfo(
     totalItems: number,
     requestedPage: number,
     itemsPerPage: number,
-  ): {
-    offset: number;
-    limit: number;
-  } {
+  ): IOffsetPaginationInfo {
     const reindexedPage = requestedPage - 1; // reindexing pagination for 1 based index
 
     const totalPages = parseInt(
@@ -14,12 +17,21 @@ export class PaginationUtils {
       10,
     );
 
-    return {
-      offset:
-        reindexedPage < totalPages
-          ? reindexedPage * itemsPerPage
-          : (totalPages - 1) * itemsPerPage,
+    const paginationParams: IOffsetPaginationInfo = {
+      offset: 0,
       limit: itemsPerPage <= totalItems ? itemsPerPage : totalItems,
+      totalPages,
     };
+
+    if (totalPages > 0) {
+      if (reindexedPage < totalPages) {
+        paginationParams.offset = reindexedPage * itemsPerPage
+
+      } else {
+        paginationParams.offset = (totalPages - 1) * itemsPerPage
+      }
+    }
+
+    return paginationParams;
   }
 }

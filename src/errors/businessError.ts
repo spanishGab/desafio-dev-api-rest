@@ -101,6 +101,6 @@ export const AccountOperationCreationError = new BusinessError(
 
 export const AccountOperationRecoveryError = new BusinessError(
   'account-operation-recovery',
-  "Error while trying to recover the account's operation(s)",
+  "Error while trying to recover the account operation(s)",
   StatusCodes.INTERNAL_SERVER_ERROR,
 )
