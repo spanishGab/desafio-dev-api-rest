@@ -1,6 +1,14 @@
 version: '3'
 services:
-  account-management-api:
-    container_name: account-management-api
-    image: spanishGab/account-management-api
+  accounts-api:
+    image: node:16-alpine
+    command: sh -c "npm install --save && npm run build && npx prisma migrate dev --name init"
+    ports:
+        - 5000:5000
+    working_dir: /accounts-api
+    volumes:
+        - ./:/accounts-api
+    environment:
+        DATABASE_URL: "file:../database/accounts.db"
+    container_name: accounts-api
     restart: always

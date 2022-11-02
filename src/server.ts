@@ -4,7 +4,7 @@ import logger from './utils/Logger';
 import app from './app';
 import dbClient from './db';
 
-const PORT = 8080;
+const PORT = 5000;
 
 class AccountServer {
   static run(): Server {

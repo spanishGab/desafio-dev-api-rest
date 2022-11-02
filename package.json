@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsc --build && npm start",
     "start": "node dist/server.js",
-    "build": "tsc --build && npm prune --production",
+    "build": "tsc --build && npm prune --omit=dev",
     "lint-fix": "eslint --fix .",
     "test": "npx jest --watch --config=./jest.config.js",
     "test:only": "npx jest --config=./jest.config.js"
