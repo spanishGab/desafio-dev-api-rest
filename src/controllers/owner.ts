@@ -7,6 +7,7 @@ import { ownerRecoverySchema, ownerCreationSchema } from '../schemas/owner';
 import { OwnerService } from '../services/owner';
 import logger from '../utils/Logger';
 import { Validator } from '../validators/validator';
+import { Endpoints } from '../routes/external.routes';
 
 interface IRecoverOwnerResponse {
   accountOwner: Owner,
@@ -65,7 +66,7 @@ export class OwnerController {
 
     return res
       .status(StatusCodes.CREATED)
-      .header({ location: `/${props.VERSION}/account-owner?documentNumber=${documentNumber}` })
+      .header({ location: `/${props.VERSION}${Endpoints.recoverOwner.replace(/:.*/, documentNumber)}` })
       .json({
         uuid: req.id,
         message: 'Created Owner!',

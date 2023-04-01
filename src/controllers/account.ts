@@ -20,6 +20,7 @@ import {
 } from '../services/account';
 import logger from '../utils/Logger';
 import { Validator } from '../validators/validator';
+import { Endpoints } from '../routes/external.routes';
 
 export interface IAccountRequestBody {
   accountInformation: {
@@ -57,7 +58,7 @@ export class AccountController {
 
     return res
       .status(StatusCodes.CREATED)
-      .header({ location: `/${props.VERSION}/account/${id}` })
+      .header({ location: `/${props.VERSION}${Endpoints.recoverAccount.replace(/:.*/, id.toString())}` })
       .json({
         uuid: RequestContextManager.getRequestId(),
         message: 'Created Account!',

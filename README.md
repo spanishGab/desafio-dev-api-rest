@@ -2,13 +2,13 @@
 ### Desafio
 Olá, queremos convidá-lo(a) a participar do nosso desafio de seleção.  Pronto(a) para participar? Seu trabalho será visto pelo nosso time e você receberá um feedback ao final sobre o que achamos do seu trabalho. Não é legal?
 
-### Sobre a oportunidade 
-A vaga é para Desenvolvedor(a), temos vagas com diversos níveis de senioridade e para cada um deles utilizaremos critérios específicos considerando este aspecto, combinado? 
+### Sobre a oportunidade
+A vaga é para Desenvolvedor(a), temos vagas com diversos níveis de senioridade e para cada um deles utilizaremos critérios específicos considerando este aspecto, combinado?
 Se você for aprovad(a) nesta etapa, será convidado para uma entrevista final.
 
 ### Desafio Técnico
   Nós trabalhamos com meios de pagamento e nada melhor do que um bom sistema para gestão de contas:
-  
+
   - Pré-requisitos:
     ```
     * Desenvolver os recursos em API Rest que realizam operações bancárias com a entidade conta a seguir:
@@ -42,7 +42,7 @@ Se você for aprovad(a) nesta etapa, será convidado para uma entrevista final.
     | idPessoa | Numérico |
     | nome | Texto |
     | cpf | Texto |
-    | dataNascimento | Data |    
+    | dataNascimento | Data |
 
   - O que esperamos como escopo mínimo:
     ```
@@ -60,26 +60,40 @@ Se você for aprovad(a) nesta etapa, será convidado para uma entrevista final.
     * Elaborar documentação;
     * Elaborar testes.
     ```
-    
+
   - O que vamos avaliar:
     ```
-    * Seu código; 
+    * Seu código;
     * Dockerfile ou docker-compose do serviço;
     * Script de banco;
     * Organização;
     * Boas práticas;
-    * Diferenciais; 
+    * Diferenciais;
     ```
 
-  - Teste para o time de Arquitetura? 
+  - Teste para o time de Arquitetura?
     ```
     * Baseado no que foi desenvolvido nos envie uma solução da Arquitetura utilizando serviços na nuvem como a AWS (diferencial), Azure e GCP;
     * Junto com as instruções de execução, explique qual Design Pattern você utilizou e por que o escolheu para a sua solução.
     ```
-  
+
 
 ### Instruções
       1. Faça o fork do desafio;
       2. Crie um repositório privado no seu github para o projeto e adicione como colaborador, os usuários informados no email pelo time de recrutameto ;
-      3. Após concluir seu trabalho faça um push; 
+      3. Após concluir seu trabalho faça um push;
       4. Envie um e-mail à pessoa que está mantendo o contato com você durante o processo notificando a finalização do desafio para validação.
+
+
+## Como rodar o projeto:
+
+Instale o sistema de container Docker e execute os seguintes comandos:
+
+```shell
+sudo docker build -t accounts-api .
+
+sudo docker ps -a
+# Look for the "NetworkSettings.IPAddress" json field, copy it to use as the host
+
+sudo docker run -p 5000/tcp accounts-api
+```

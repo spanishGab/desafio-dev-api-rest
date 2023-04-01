@@ -9,8 +9,21 @@ import logger from '../utils/Logger';
 
 const router = Router();
 
+export enum Endpoints {
+  healthcheck = '/healthcheck',
+  recoverOwner = '/recover-owner/:documentNumber',
+  createOwner = '/create-owner',
+  createAccount = '/',
+  recoverAccount = '/:id',
+  accountDeposit = '/deposit/:id',
+  accountWithdrawal = '/withdrawal/:id',
+  accountBlocking = '/block/:id',
+  accountStatement = '/statement/:id',
+}
+
+
 router.get(
-  '/healthcheck',
+  Endpoints.healthcheck,
   (req: Request, res: Response<ISuccessResponseBody>): Response => {
     logger.info({
       event: 'routes.healthCheck',
@@ -25,21 +38,25 @@ router.get(
 );
 
 // Account owner functionalities
-router.get('/recover-owner/:documentNumber', OwnerController.recover);
+router.get(Endpoints.recoverOwner, OwnerController.recover);
 
-router.post('/create-owner', OwnerController.create);
+router.post(Endpoints.createOwner, OwnerController.create);
 
 // Account operation functionalities
-router.post('/', AccountController.create);
+router.post(Endpoints.createAccount, AccountController.create);
 
-router.get('/:id', AuthGateway.main, AccountController.recover);
+router.get(Endpoints.recoverAccount, AuthGateway.main, AccountController.recover);
 
-router.put('/deposit/:id', AuthGateway.main, AccountController.deposit);
+router.put(Endpoints.accountDeposit, AuthGateway.main, AccountController.deposit);
 
-router.put('/withdrawal/:id', AuthGateway.main, AccountController.withdrawal);
+router.put(Endpoints.accountWithdrawal, AuthGateway.main, AccountController.withdrawal);
 
-router.put('/block/:id', AuthGateway.main, AccountController.block);
+router.put(Endpoints.accountBlocking, AuthGateway.main, AccountController.block);
 
-router.get('/statement/:id', AuthGateway.main, AccountController.getTransactionStatement);
+router.get(
+  Endpoints.accountStatement,
+  AuthGateway.main,
+  AccountController.getTransactionStatement,
+);
 
 export default router;
